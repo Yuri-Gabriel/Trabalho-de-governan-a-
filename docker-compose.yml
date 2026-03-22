@@ -3,6 +3,8 @@ services:
     image: mariadb:latest
     container_name: sam_ti_db
     restart: unless-stopped
+    ports:
+      - "3307:3306"
     environment:
       MARIADB_DATABASE: "sam_ti"
       MARIADB_USER: "sam_ti_user"
