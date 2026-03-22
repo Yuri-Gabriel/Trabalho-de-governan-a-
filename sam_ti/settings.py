@@ -59,12 +59,26 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "sam_ti.wsgi.application"
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+DB_ENGINE = os.environ.get("DB_ENGINE", "django.db.backends.mysql")
+
+if DB_ENGINE == "django.db.backends.sqlite3":
+    DATABASES = {
+        "default": {
+            "ENGINE": DB_ENGINE,
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": DB_ENGINE,
+            "NAME": os.environ.get("DB_NAME", "sam_ti"),
+            "USER": os.environ.get("DB_USER", "sam_ti_user"),
+            "PASSWORD": os.environ.get("DB_PASSWORD", "sam_ti_pass"),
+            "HOST": os.environ.get("DB_HOST", "127.0.0.1"),
+            "PORT": os.environ.get("DB_PORT", "3306"),
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {

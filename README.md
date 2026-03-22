@@ -1,4 +1,4 @@
-# SAM-TI (Django + SQLite)
+# SAM-TI (Django + MySQL)
 
 Aplicação para avaliação de maturidade de TI baseada no documento de requisitos fornecido.
 
@@ -41,4 +41,5 @@ O container aplica as migrações automaticamente na inicialização e expõe a 
 
 ## Observações
 - Perfis de usuário podem ser definidos no Django Admin (`/admin`) no cadastro de `Profile`.
-- O banco é SQLite (`db.sqlite3`).
+- O banco padrão no Docker Compose é MySQL.
+- Os dados do MySQL ficam persistidos no volume `mysql_data`, então reiniciar containers não apaga os dados.

@@ -1,12 +1,42 @@
 services:
+  db:
+    image: mysql:8.4
+    container_name: sam_ti_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: "sam_ti"
+      MYSQL_USER: "sam_ti_user"
+      MYSQL_PASSWORD: "sam_ti_pass"
+      MYSQL_ROOT_PASSWORD: "root_pass"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
   web:
     build: .
     container_name: sam_ti_web
     ports:
       - "2332:2332"
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
       DJANGO_DEBUG: "True"
       DJANGO_ALLOWED_HOSTS: "127.0.0.1,localhost,0.0.0.0,192.168.1.50,governanca.yuridevs.com.br"
       DJANGO_CSRF_TRUSTED_ORIGINS: "http://127.0.0.1,http://localhost,http://192.168.1.50:2332,https://governanca.yuridevs.com.br"
+      DB_ENGINE: "django.db.backends.mysql"
+      DB_NAME: "sam_ti"
+      DB_USER: "sam_ti_user"
+      DB_PASSWORD: "sam_ti_pass"
+      DB_HOST: "db"
+      DB_PORT: "3306"
     volumes:
       - .:/app
+
+volumes:
+  mysql_data:
