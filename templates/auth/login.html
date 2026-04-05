@@ -9,6 +9,10 @@
       {{ form.as_p }}
       <button class="btn btn-primary" type="submit">Entrar</button>
     </form>
+    <div class="auth-links">
+      <a href="{% url 'cadastro' %}">Criar conta</a>
+      <a href="{% url 'password_reset' %}">Esqueci minha senha</a>
+    </div>
   </div>
 </section>
 {% endblock %}

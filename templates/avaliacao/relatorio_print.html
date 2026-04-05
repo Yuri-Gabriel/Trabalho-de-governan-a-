@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatório SAM-TI</title>
+  <style>
+    :root {
+      --line: #d3d8d8;
+      --text: #172121;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      background: #fff;
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 20px 24px 20px 20px;
+    }
+
+    h1, h2, h3 {
+      margin: 0 0 10px;
+    }
+
+    .meta {
+      margin-bottom: 18px;
+      font-size: 14px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      border: none;
+      outline: 1px solid var(--line);
+      outline-offset: -1px;
+      border-radius: 8px;
+      padding: 10px;
+      break-inside: avoid;
+      overflow: hidden;
+    }
+
+    .stat h3 {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 8px 6px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    @media print {
+      @page {
+        size: A4;
+        margin: 12mm;
+      }
+
+      .no-print {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <h1>Relatório Final SAM-TI</h1>
+    <div class="meta">
+      <strong>Empresa:</strong> {{ avaliacao.empresa.nome }}<br>
+      <strong>Avaliação:</strong> {{ avaliacao.nome }}
+    </div>
+
+    <section class="stats-grid">
+      <article class="card stat">
+        <h3>{{ score_geral }}%</h3>
+        <p>Score geral</p>
+      </article>
+      <article class="card stat">
+        <h3>{{ classificacao }}</h3>
+        <p>Nível de maturidade</p>
+      </article>
+      <article class="card stat">
+        <h3>{{ total_respondido }}</h3>
+        <p>Respostas consideradas</p>
+      </article>
+    </section>
+
+    <section class="card">
+      <h2>Score por área</h2>
+      <table>
+        <thead><tr><th>Categoria</th><th>Score</th><th>Questões</th></tr></thead>
+        <tbody>
+          {% for item in score_categoria %}
+          <tr>
+            <td>{{ item.categoria }}</td>
+            <td>{{ item.score }}%</td>
+            <td>{{ item.total }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="3">Ainda não há respostas para calcular score.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Plano de ação consolidado (Providências)</h2>
+      <table>
+        <thead><tr><th>Categoria</th><th>Questão</th><th>Providência</th><th>Responsável</th></tr></thead>
+        <tbody>
+          {% for resposta in plano_acao %}
+          <tr>
+            <td>{{ resposta.questao.categoria.nome }}</td>
+            <td>{{ resposta.questao.texto }}</td>
+            <td>{{ resposta.providencia }}</td>
+            <td>{{ resposta.respondido_por.username }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4">Nenhuma providência registrada.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+    window.addEventListener("load", function () {
+      setTimeout(function () {
+        window.print();
+      }, 200);
+    });
+  </script>
+</body>
+</html>

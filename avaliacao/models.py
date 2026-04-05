@@ -19,6 +19,13 @@ class Profile(models.Model):
 
 
 class Empresa(models.Model):
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="empresas",
+        null=True,
+        blank=True,
+    )
     nome = models.CharField(max_length=150)
     cnpj = models.CharField(max_length=18, blank=True)
     setor = models.CharField(max_length=100, blank=True)

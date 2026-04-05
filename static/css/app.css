@@ -103,6 +103,19 @@ body {
   margin: 3rem auto;
 }
 
+.auth-links {
+  margin-top: 0.9rem;
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.auth-links a {
+  color: var(--primary-dark);
+  text-decoration: none;
+  font-weight: 600;
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

@@ -20,16 +20,12 @@
     <nav class="menu">
       <a href="{% url 'dashboard' %}">Dashboard</a>
       <a href="{% url 'avaliacao_list' %}">Avaliações</a>
-      {% if request.user.profile.role == 'ADMIN' or request.user.profile.role == 'CONSULTOR' %}
       <a href="{% url 'empresa_list' %}">Empresas</a>
-      {% endif %}
       {% if request.user.profile.role == 'ADMIN' %}
       <a href="{% url 'questao_list' %}">Questões</a>
       {% endif %}
-      <form method="post" action="{% url 'logout' %}" class="menu-logout">
-        {% csrf_token %}
-        <button type="submit" class="menu-link">Sair</button>
-      </form>
+      <a href="{% url 'password_reset' %}">Alterar senha</a>
+      <a href="{% url 'logout' %}">Sair</a>
     </nav>
   </header>
   {% endif %}

@@ -1,0 +1,29 @@
+
+  
+Alinhamento Estratégico - A TI participa do planejamento estratégico da organização? 
+Alinhamento Estratégico - Projetos de TI são priorizados com base em objetivos estratégicos claros? 
+Alinhamento Estratégico - Há indicadores que demonstram geração de valor da TI para o negócio? 
+
+Cultura de TI - A equipe de TI compartilha conhecimento de forma estruturada? 
+Cultura de TI - Existe cultura de inovação e melhoria contínua na TI? 
+Cultura de TI - Há colaboração efetiva entre TI e demais áreas da empresa? 
+
+Ferramentas de TI - A empresa utiliza ferramentas para monitoramento da infraestrutura e serviços? 
+Ferramentas de TI - Existe automação relevante em rotinas operacionais ou integrações entre sistemas? 
+Ferramentas de TI - Há gestão estruturada de ativos de TI com inventário atualizado? 
+
+Gestão de Riscos - Riscos de TI e segurança da informação são identificados e tratados regularmente? 
+Gestão de Riscos - Existe plano de continuidade, backup e recuperação testado periodicamente? 
+Gestão de Riscos - Mudanças relevantes passam por análise de impacto e controles de risco? 
+
+Governança de TI - Existem papéis, responsabilidades e decisões de TI formalmente definidos? 
+Governança de TI - A TI adota práticas ou frameworks reconhecidos (ex.: ITIL, COBIT, ISO 27001)? 
+Governança de TI - Há acompanhamento executivo dos resultados, riscos e investimentos de TI? 
+
+Nível de Serviço - A área de TI possui SLAs ou metas de atendimento formalizadas? 
+Nível de Serviço - Os serviços críticos são monitorados continuamente quanto ao desempenho e disponibilidade? 
+Nível de Serviço - Usuários e áreas de negócio percebem consistência e previsibilidade nos serviços de TI? 
+
+Processos de TI - Existem processos documentados para incidentes, mudanças e requisições? 
+Processos de TI - A TI mede e revisa periodicamente seus processos para melhoria contínua? 
+Processos de TI - As atividades críticas dependem mais do processo do que de pessoas específicas?

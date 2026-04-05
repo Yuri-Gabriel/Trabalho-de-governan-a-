@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="hero">
+  <div class="card auth-card">
+    <h2>Criar conta</h2>
+    <p>Cadastre usuário e empresa para iniciar as avaliações.</p>
+    <form method="post" class="form-grid">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button class="btn btn-primary" type="submit">Cadastrar</button>
+    </form>
+    <div class="auth-links">
+      <a href="{% url 'login' %}">Já tenho conta</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

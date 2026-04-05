@@ -1,73 +1,67 @@
 {% extends 'base.html' %}
 {% block content %}
-<section class="stats-grid">
-  <article class="card stat">
-    <h3>{{ score_geral }}%</h3>
-    <p>Score geral</p>
-  </article>
-  <article class="card stat">
-    <h3>{{ classificacao }}</h3>
-    <p>Nível de maturidade</p>
-  </article>
-  <article class="card stat">
-    <h3>{{ total_respondido }}</h3>
-    <p>Respostas consideradas</p>
-  </article>
+<section class="row-between relatorio-toolbar">
+  <h2>Relatório Final</h2>
+  <a class="btn btn-primary" href="{% url 'relatorio_print' avaliacao.id %}" target="_blank" rel="noopener">Exportar PDF</a>
 </section>
 
-<section class="card">
-  <h3>Leitura executiva do resultado</h3>
-  <p><strong>Definição do nível:</strong> {{ descricao_maturidade }}</p>
-  <p><strong>O que isso indica:</strong> {{ implicacoes_maturidade }}</p>
-</section>
+<div id="relatorio-principal">
+  <h2 class="print-title">Relatório Final</h2>
+  <section class="stats-grid">
+    <article class="card stat">
+      <h3>{{ score_geral }}%</h3>
+      <p>Score geral</p>
+    </article>
+    <article class="card stat">
+      <h3>{{ classificacao }}</h3>
+      <p>Nível de maturidade</p>
+    </article>
+    <article class="card stat">
+      <h3>{{ total_respondido }}</h3>
+      <p>Respostas consideradas</p>
+    </article>
+  </section>
 
-<section class="card">
-  <h3>Score por área</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Categoria</th><th>Score</th><th>Questões</th></tr></thead>
-      <tbody>
-        {% for item in score_categoria %}
-        <tr>
-          <td>{{ item.categoria }}</td>
-          <td>{{ item.score }}%</td>
-          <td>{{ item.total }}</td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="3">Ainda não há respostas para calcular score.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</section>
+  <section class="card">
+    <h3>Score por área</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Categoria</th><th>Score</th><th>Questões</th></tr></thead>
+        <tbody>
+          {% for item in score_categoria %}
+          <tr>
+            <td>{{ item.categoria }}</td>
+            <td>{{ item.score }}%</td>
+            <td>{{ item.total }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="3">Ainda não há respostas para calcular score.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
 
-<section class="card">
-  <h3>Recomendações para evolução</h3>
-  <ul class="plain-list">
-    {% for recomendacao in recomendacoes_maturidade %}
-    <li>{{ recomendacao }}</li>
-    {% endfor %}
-  </ul>
-</section>
+  <section class="card">
+    <h3>Plano de ação consolidado (Providências)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Categoria</th><th>Questão</th><th>Providência</th><th>Responsável</th></tr></thead>
+        <tbody>
+          {% for resposta in plano_acao %}
+          <tr>
+            <td>{{ resposta.questao.categoria.nome }}</td>
+            <td>{{ resposta.questao.texto }}</td>
+            <td>{{ resposta.providencia }}</td>
+            <td>{{ resposta.respondido_por.username }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4">Nenhuma providência registrada.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
 
-<section class="card">
-  <h3>Plano de ação consolidado (Providências)</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Categoria</th><th>Questão</th><th>Providência</th><th>Responsável</th></tr></thead>
-      <tbody>
-        {% for resposta in plano_acao %}
-        <tr>
-          <td>{{ resposta.questao.categoria.nome }}</td>
-          <td>{{ resposta.questao.texto }}</td>
-          <td>{{ resposta.providencia }}</td>
-          <td>{{ resposta.respondido_por.username }}</td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="4">Nenhuma providência registrada.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</section>
 {% endblock %}

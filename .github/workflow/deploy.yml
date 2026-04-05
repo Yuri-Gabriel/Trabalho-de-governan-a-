@@ -1,0 +1,16 @@
+name: Deploy via API
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy
+        run: |
+          curl -X POST "https://deploy.yuridevs.com.br/api/deploy" \
+            -H "Authorization: Bearer 88R9kPYJB6QdPmrpru6tB6KrG2Ev4T3PahpCDiK6fmU" \
+            --fail

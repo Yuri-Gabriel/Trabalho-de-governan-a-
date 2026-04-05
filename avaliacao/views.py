@@ -1,11 +1,12 @@
 from django.contrib import messages
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods, require_POST
 
 from .decorators import role_required
-from .forms import AvaliacaoForm, CategoriaQuestaoForm, EmpresaForm, QuestaoForm, RespostaForm
+from .forms import AvaliacaoForm, CadastroForm, EmpresaForm, QuestaoForm, RespostaForm
 from .models import (
     Avaliacao,
     AvaliacaoStatus,
@@ -35,15 +36,34 @@ def _usuario_acessa_avaliacao(usuario, avaliacao):
     return avaliacao.participantes.filter(id=usuario.id).exists()
 
 
-def _usuario_gerencia_avaliacao(usuario, avaliacao):
+def _usuario_pode_gerenciar_empresas(usuario):
     perfil = getattr(usuario, "profile", None)
     if not perfil:
         return False
+    return perfil.role in {UserRole.ADMIN, UserRole.CONSULTOR, UserRole.DIRETORIA}
 
-    if perfil.role == UserRole.ADMIN:
-        return True
 
-    return perfil.role == UserRole.CONSULTOR and avaliacao.consultor_responsavel_id == usuario.id
+def _empresas_visiveis_usuario(usuario):
+    perfil = getattr(usuario, "profile", None)
+    if perfil and perfil.role in {UserRole.ADMIN, UserRole.CONSULTOR}:
+        return Empresa.objects.all()
+    return Empresa.objects.filter(owner=usuario)
+
+
+def cadastro(request):
+    if request.user.is_authenticated:
+        return redirect("dashboard")
+
+    if request.method == "POST":
+        form = CadastroForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, "Cadastro realizado com sucesso.")
+            return redirect("dashboard")
+    else:
+        form = CadastroForm()
+    return render(request, "auth/cadastro.html", {"form": form})
 
 
 @login_required
@@ -68,19 +88,28 @@ def dashboard(request):
     return render(request, "avaliacao/dashboard.html", context)
 
 
-@role_required(UserRole.ADMIN, UserRole.CONSULTOR)
+@login_required
 def empresa_list(request):
-    empresas = Empresa.objects.all().order_by("nome")
+    if not _usuario_pode_gerenciar_empresas(request.user):
+        messages.error(request, "Você não tem permissão para acessar empresas.")
+        return redirect("dashboard")
+    empresas = _empresas_visiveis_usuario(request.user).order_by("nome")
     return render(request, "avaliacao/empresa_list.html", {"empresas": empresas})
 
 
-@role_required(UserRole.ADMIN, UserRole.CONSULTOR)
-@require_http_methods(["GET", "POST"])
+@login_required
 def empresa_create(request):
+    if not _usuario_pode_gerenciar_empresas(request.user):
+        messages.error(request, "Você não tem permissão para cadastrar empresas.")
+        return redirect("dashboard")
+
     if request.method == "POST":
         form = EmpresaForm(request.POST)
         if form.is_valid():
-            form.save()
+            empresa = form.save(commit=False)
+            if empresa.owner_id is None:
+                empresa.owner = request.user
+            empresa.save()
             messages.success(request, "Empresa cadastrada.")
             return redirect("empresa_list")
     else:
@@ -169,6 +198,7 @@ def avaliacao_list(request):
 def avaliacao_create(request):
     if request.method == "POST":
         form = AvaliacaoForm(request.POST)
+        form.fields["empresa"].queryset = _empresas_visiveis_usuario(request.user)
         if form.is_valid():
             avaliacao = form.save()
             avaliacao.participantes.add(avaliacao.consultor_responsavel)
@@ -176,6 +206,7 @@ def avaliacao_create(request):
             return redirect("avaliacao_detail", avaliacao_id=avaliacao.id)
     else:
         form = AvaliacaoForm(initial={"consultor_responsavel": request.user})
+        form.fields["empresa"].queryset = _empresas_visiveis_usuario(request.user)
     return render(request, "avaliacao/form.html", {"form": form, "titulo": "Nova Avaliação"})
 
 
@@ -250,6 +281,17 @@ def relatorio(request, avaliacao_id):
 
     dados = gerar_relatorio(avaliacao)
     return render(request, "avaliacao/relatorio.html", {"avaliacao": avaliacao, **dados})
+
+
+@login_required
+def relatorio_print(request, avaliacao_id):
+    avaliacao = get_object_or_404(Avaliacao, id=avaliacao_id)
+    if not _usuario_acessa_avaliacao(request.user, avaliacao):
+        messages.error(request, "Você não tem acesso a este relatório.")
+        return redirect("dashboard")
+
+    dados = gerar_relatorio(avaliacao)
+    return render(request, "avaliacao/relatorio_print.html", {"avaliacao": avaliacao, **dados})
 
 
 @role_required(UserRole.ADMIN, UserRole.CONSULTOR)
