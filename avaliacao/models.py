@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 
@@ -36,10 +37,29 @@ class CategoriaQuestao(models.Model):
         return self.nome
 
 
+class FrameworkOrigem(models.TextChoices):
+    COBIT5 = "COBIT5", "COBIT 5"
+    ITIL4 = "ITIL4", "ITIL 4"
+    ISO27000 = "ISO27000", "ISO/IEC 27000"
+    ISO31000 = "ISO31000", "ISO 31000"
+    INTERNO = "INTERNO", "Modelo interno"
+
+
 class Questao(models.Model):
     categoria = models.ForeignKey(CategoriaQuestao, on_delete=models.PROTECT, related_name="questoes")
     texto = models.TextField()
     ativa = models.BooleanField(default=True)
+    framework_origem = models.CharField(
+        max_length=20,
+        choices=FrameworkOrigem.choices,
+        default=FrameworkOrigem.INTERNO,
+    )
+    referencia = models.CharField(
+        max_length=120,
+        blank=True,
+        help_text="Ex.: DSS02 (COBIT), 5.2.3 (ISO), Practice Incident Management (ITIL)",
+    )
+    peso = models.PositiveSmallIntegerField(default=1, validators=[MinValueValidator(1), MaxValueValidator(5)])
 
     def __str__(self):
         return f"{self.categoria.nome}: {self.texto[:60]}"
@@ -108,6 +128,82 @@ class Resposta(models.Model):
             self.evidencia_descricao = ""
             if self.evidencia_arquivo:
                 self.evidencia_arquivo = None
+
+
+class PlanoAcaoStatus(models.TextChoices):
+    ABERTO = "ABERTO", "Aberto"
+    EM_ANDAMENTO = "EM_ANDAMENTO", "Em andamento"
+    CONCLUIDO = "CONCLUIDO", "Concluído"
+
+
+class PlanoAcao(models.Model):
+    resposta = models.OneToOneField(Resposta, on_delete=models.CASCADE, related_name="plano_acao")
+    responsavel = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="planos_acao",
+    )
+    data_limite = models.DateField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=PlanoAcaoStatus.choices, default=PlanoAcaoStatus.ABERTO)
+    # Campos 5W2H adicionais
+    where_local = models.CharField(max_length=255, blank=True, db_column="where", verbose_name="Where (onde será feito?)")
+    how = models.TextField(blank=True, verbose_name="How (como será feito?)")
+    how_much = models.CharField(max_length=255, blank=True, verbose_name="How Much (custo/esforço estimado)")
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["status", "data_limite", "-atualizado_em"]
+
+    def __str__(self):
+        return f"Plano {self.id} - Resp {self.resposta_id}"
+
+
+class RiscoStatus(models.TextChoices):
+    ABERTO = "ABERTO", "Aberto"
+    MITIGADO = "MITIGADO", "Mitigado"
+    ACEITO = "ACEITO", "Aceito"
+
+
+class RiscoAvaliacao(models.Model):
+    avaliacao = models.ForeignKey(Avaliacao, on_delete=models.CASCADE, related_name="riscos")
+    titulo = models.CharField(max_length=180)
+    descricao = models.TextField(blank=True)
+    impacto = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)], default=3)
+    probabilidade = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)], default=3)
+    status = models.CharField(max_length=20, choices=RiscoStatus.choices, default=RiscoStatus.ABERTO)
+    responsavel = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="riscos_responsavel",
+    )
+    plano_mitigacao = models.TextField(blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-criado_em"]
+
+    def __str__(self):
+        return f"Risco {self.id} - {self.titulo}"
+
+    @property
+    def nivel(self):
+        return self.impacto * self.probabilidade
+
+    @property
+    def classificacao(self):
+        if self.nivel <= 5:
+            return "Baixo"
+        if self.nivel <= 12:
+            return "Médio"
+        if self.nivel <= 19:
+            return "Alto"
+        return "Crítico"
 
 
 class LogAuditoriaResposta(models.Model):

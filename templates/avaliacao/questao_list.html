@@ -11,7 +11,7 @@
   <div class="table-wrap">
     <table>
       <thead>
-        <tr><th>ID</th><th>Categoria</th><th>Texto</th><th>Ativa</th><th>Ações</th></tr>
+        <tr><th>ID</th><th>Categoria</th><th>Texto</th><th>Framework</th><th>Referência</th><th>Peso</th><th>Ativa</th><th>Ações</th></tr>
       </thead>
       <tbody>
         {% for q in questoes %}
@@ -19,11 +19,14 @@
           <td>{{ q.id }}</td>
           <td>{{ q.categoria.nome }}</td>
           <td>{{ q.texto }}</td>
+          <td>{{ q.get_framework_origem_display }}</td>
+          <td>{{ q.referencia|default:'-' }}</td>
+          <td>{{ q.peso }}</td>
           <td>{{ q.ativa|yesno:'Sim,Não' }}</td>
           <td><a class="btn btn-primary" href="{% url 'questao_update' q.id %}">Editar</a></td>
         </tr>
         {% empty %}
-        <tr><td colspan="5">Nenhuma questão cadastrada.</td></tr>
+        <tr><td colspan="8">Nenhuma questão cadastrada.</td></tr>
         {% endfor %}
       </tbody>
     </table>

@@ -5,9 +5,11 @@ from .models import (
     CategoriaQuestao,
     Empresa,
     LogAuditoriaResposta,
+    PlanoAcao,
     Profile,
     Questao,
     Resposta,
+    RiscoAvaliacao,
 )
 
 
@@ -30,8 +32,9 @@ class CategoriaQuestaoAdmin(admin.ModelAdmin):
 
 @admin.register(Questao)
 class QuestaoAdmin(admin.ModelAdmin):
-    list_display = ("id", "categoria", "ativa")
-    list_filter = ("categoria", "ativa")
+    list_display = ("id", "categoria", "framework_origem", "referencia", "peso", "ativa")
+    list_filter = ("categoria", "framework_origem", "ativa")
+    search_fields = ("texto", "referencia")
 
 
 @admin.register(Avaliacao)
@@ -44,6 +47,18 @@ class AvaliacaoAdmin(admin.ModelAdmin):
 class RespostaAdmin(admin.ModelAdmin):
     list_display = ("avaliacao", "questao", "resposta", "respondido_por", "atualizado_em")
     list_filter = ("resposta", "avaliacao")
+
+
+@admin.register(PlanoAcao)
+class PlanoAcaoAdmin(admin.ModelAdmin):
+    list_display = ("id", "resposta", "responsavel", "data_limite", "status", "atualizado_em")
+    list_filter = ("status",)
+
+
+@admin.register(RiscoAvaliacao)
+class RiscoAvaliacaoAdmin(admin.ModelAdmin):
+    list_display = ("id", "avaliacao", "titulo", "impacto", "probabilidade", "status", "responsavel", "atualizado_em")
+    list_filter = ("status", "avaliacao")
 
 
 @admin.register(LogAuditoriaResposta)

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="card">
+  <div class="row-between">
+    <div>
+      <h2>Matriz de Risco (ISO 31000) - {{ avaliacao.nome }}</h2>
+      <p>{{ avaliacao.empresa.nome }}</p>
+    </div>
+    {% if request.user.profile.role == 'ADMIN' or avaliacao.consultor_responsavel_id == request.user.id %}
+    <a class="btn btn-primary" href="{% url 'risco_create' avaliacao.id %}">Novo risco</a>
+    {% endif %}
+  </div>
+</section>
+
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Título</th>
+          <th>Impacto</th>
+          <th>Probabilidade</th>
+          <th>Nível</th>
+          <th>Classificação</th>
+          <th>Status</th>
+          <th>Responsável</th>
+          <th>Plano de mitigação</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for risco in riscos %}
+        <tr>
+          <td>{{ risco.titulo }}</td>
+          <td>{{ risco.impacto }}</td>
+          <td>{{ risco.probabilidade }}</td>
+          <td>{{ risco.nivel }}</td>
+          <td>{{ risco.classificacao }}</td>
+          <td>{{ risco.get_status_display }}</td>
+          <td>{{ risco.responsavel.username|default:'-' }}</td>
+          <td>{{ risco.plano_mitigacao|default:'-' }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8">Nenhum risco registrado para esta avaliação.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

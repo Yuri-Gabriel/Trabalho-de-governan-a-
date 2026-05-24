@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="page-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+  <div>
+    <h2 style="margin:0;">📋 Plano de Ação 5W2H</h2>
+    <p style="margin:.25rem 0 0; opacity:.7;">{{ avaliacao.empresa.nome }} — {{ avaliacao.nome }}</p>
+  </div>
+  <div style="display:flex; gap:.75rem; flex-wrap:wrap;">
+    <a href="{% url 'relatorio' avaliacao.id %}" class="btn btn-secondary">← Voltar ao Relatório</a>
+    <a href="{% url 'exportar_plano_xlsx' avaliacao.id %}" class="btn btn-primary">⬇ Exportar .xlsx</a>
+  </div>
+</div>
+
+{% if not itens %}
+  <div class="card" style="text-align:center; padding:2rem;">
+    <p>Nenhuma providência registrada para gerar o plano de ação.</p>
+    <p style="opacity:.6;">Responda as questões com "Não" e preencha o campo de providência para que os itens apareçam aqui.</p>
+  </div>
+{% else %}
+<form method="post">
+  {% csrf_token %}
+
+  {% regroup itens by resposta.questao.categoria.nome as itens_por_categoria %}
+
+  {% for grupo in itens_por_categoria %}
+  <section class="card" style="margin-bottom:1.5rem;">
+    <h3 style="border-bottom:2px solid var(--accent,#2563eb); padding-bottom:.5rem; margin-bottom:1rem;">
+      📂 {{ grupo.grouper }}
+    </h3>
+
+    {% for item in grupo.list %}
+    <div class="plano-item" style="background:var(--surface-2,#f8fafc); border-radius:8px; padding:1.25rem; margin-bottom:1rem; border:1px solid var(--border,#e2e8f0);">
+
+      <!-- WHAT + WHY (read-only, vindos do questionário) -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+        <div>
+          <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
+            🔵 What — O que fazer?
+          </label>
+          <p style="margin:.25rem 0 0; font-weight:600;">{{ item.resposta.questao.texto }}</p>
+          <span style="font-size:.75rem; opacity:.5;">
+            {{ item.resposta.questao.get_framework_origem_display }} · Ref: {{ item.resposta.questao.referencia|default:"—" }} · Peso: {{ item.resposta.questao.peso }}
+          </span>
+        </div>
+        <div>
+          <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
+            🔵 Why — Por quê? (Providência)
+          </label>
+          <p style="margin:.25rem 0 0;">{{ item.resposta.providencia }}</p>
+        </div>
+      </div>
+
+      <!-- CAMPOS EDITÁVEIS 5W2H -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem;">
+
+        <div>
+          <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
+            🟡 When — Prazo
+          </label>
+          {{ item.form.data_limite }}
+        </div>
+
+        <div>
+          <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
+            🟡 Where — Onde
+          </label>
+          {{ item.form.where_local }}
+        </div>
+
+        <div>
+          <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
+            🟡 Who — Responsável
+          </label>
+          {{ item.form.responsavel }}
+        </div>
+
+        <div>
+          <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
+            🟡 How Much — Custo/Esforço
+          </label>
+          {{ item.form.how_much }}
+        </div>
+
+        <div style="grid-column: span 2;">
+          <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
+            🟡 How — Como será feito?
+          </label>
+          {{ item.form.how }}
+        </div>
+
+        <div>
+          <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
+            📌 Status
+          </label>
+          {{ item.form.status }}
+        </div>
+
+      </div>
+    </div>
+    {% endfor %}
+  </section>
+  {% endfor %}
+
+  <div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:1rem;">
+    <a href="{% url 'relatorio' avaliacao.id %}" class="btn btn-secondary">Cancelar</a>
+    <button type="submit" class="btn btn-primary">💾 Salvar Plano de Ação</button>
+  </div>
+</form>
+{% endif %}
+
+<style>
+  input[type="text"], input[type="date"], select, textarea {
+    width: 100%;
+    padding: .4rem .6rem;
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 6px;
+    font-size: .9rem;
+    margin-top: .25rem;
+    box-sizing: border-box;
+    background: var(--surface, #fff);
+    color: inherit;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: 2px solid var(--accent, #2563eb);
+    border-color: transparent;
+  }
+  .btn {
+    display: inline-block;
+    padding: .55rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: .9rem;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+  }
+  .btn-primary { background: var(--accent, #2563eb); color: #fff; }
+  .btn-secondary { background: transparent; border: 1px solid var(--border, #e2e8f0); color: inherit; }
+</style>
+{% endblock %}

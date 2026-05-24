@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from .models import LogAuditoriaResposta, Resposta, RespostaEscolha
+from .models import LogAuditoriaResposta, Questao, Resposta, RespostaEscolha
 
 
 MATURIDADE_INFO = {
@@ -53,37 +53,130 @@ def calcular_classificacao(score_geral: float) -> str:
     return "Estratégico"
 
 
+def _calcular_score_ponderado(respostas):
+    total_peso = 0
+    total_peso_sim = 0
+
+    for r in respostas:
+        peso = r.questao.peso if r.questao and r.questao.peso else 1
+        total_peso += peso
+        if r.resposta == RespostaEscolha.SIM:
+            total_peso_sim += peso
+
+    score = round((total_peso_sim / total_peso) * 100, 2) if total_peso else 0
+    return score, total_peso, total_peso_sim
+
+
+def _benchmark_setor(avaliacao):
+    if not avaliacao.empresa.setor:
+        return None
+
+    # Benchmark simples: média de score ponderado das avaliações concluídas do mesmo setor
+    # (exceto a avaliação atual)
+    avaliacoes_setor = (
+        avaliacao.__class__.objects.filter(
+            empresa__setor=avaliacao.empresa.setor,
+            status="CONCLUIDA",
+        )
+        .exclude(id=avaliacao.id)
+        .select_related("empresa")
+    )
+
+    scores = []
+    for av in avaliacoes_setor:
+        respostas_av = (
+            Resposta.objects.filter(avaliacao=av)
+            .select_related("questao")
+        )
+        score_av, _, _ = _calcular_score_ponderado(respostas_av)
+        scores.append(score_av)
+
+    if not scores:
+        return None
+
+    media = round(sum(scores) / len(scores), 2)
+    return {
+        "setor": avaliacao.empresa.setor,
+        "media_setor": media,
+        "amostra": len(scores),
+    }
+
+
+def _historico_empresa(avaliacao):
+    historico = (
+        avaliacao.__class__.objects.filter(empresa=avaliacao.empresa)
+        .exclude(id=avaliacao.id)
+        .order_by("criada_em")
+    )
+
+    itens = []
+    for av in historico:
+        respostas_av = (
+            Resposta.objects.filter(avaliacao=av)
+            .select_related("questao")
+        )
+        score_av, _, _ = _calcular_score_ponderado(respostas_av)
+        itens.append(
+            {
+                "id": av.id,
+                "nome": av.nome,
+                "criada_em": av.criada_em,
+                "score": score_av,
+                "status": av.status,
+            }
+        )
+    return itens
+
+
 def gerar_relatorio(avaliacao):
     respostas = (
         Resposta.objects.filter(avaliacao=avaliacao)
-        .select_related("questao__categoria")
+        .select_related("questao__categoria", "questao", "plano_acao")
         .order_by("questao__categoria__nome")
     )
 
     total = respostas.count()
     total_sim = respostas.filter(resposta=RespostaEscolha.SIM).count()
-    score_geral = round((total_sim / total) * 100, 2) if total else 0
+
+    score_geral, total_peso, total_peso_sim = _calcular_score_ponderado(respostas)
     classificacao = calcular_classificacao(score_geral)
     explicacao = MATURIDADE_INFO[classificacao]
 
-    por_categoria = defaultdict(lambda: {"total": 0, "sim": 0})
+    por_categoria = defaultdict(lambda: {"total": 0, "sim": 0, "peso_total": 0, "peso_sim": 0})
     plano_acao = []
 
     for r in respostas:
         categoria = r.questao.categoria.nome
+        peso = r.questao.peso if r.questao and r.questao.peso else 1
+
         por_categoria[categoria]["total"] += 1
+        por_categoria[categoria]["peso_total"] += peso
+
         if r.resposta == RespostaEscolha.SIM:
             por_categoria[categoria]["sim"] += 1
+            por_categoria[categoria]["peso_sim"] += peso
+
         if r.resposta == RespostaEscolha.NAO and r.providencia:
             plano_acao.append(r)
 
     score_categoria = []
     for categoria, dados in por_categoria.items():
-        score = round((dados["sim"] / dados["total"]) * 100, 2) if dados["total"] else 0
-        score_categoria.append({"categoria": categoria, "score": score, "total": dados["total"]})
+        score = round((dados["peso_sim"] / dados["peso_total"]) * 100, 2) if dados["peso_total"] else 0
+        score_categoria.append(
+            {
+                "categoria": categoria,
+                "score": score,
+                "total": dados["total"],
+                "peso_total": dados["peso_total"],
+            }
+        )
+
+    benchmark = _benchmark_setor(avaliacao)
+    historico = _historico_empresa(avaliacao)
 
     return {
         "total_respondido": total,
+        "total_sim": total_sim,
         "score_geral": score_geral,
         "classificacao": classificacao,
         "descricao_maturidade": explicacao["descricao"],
@@ -91,6 +184,10 @@ def gerar_relatorio(avaliacao):
         "recomendacoes_maturidade": explicacao["recomendacoes"],
         "score_categoria": sorted(score_categoria, key=lambda x: x["categoria"]),
         "plano_acao": plano_acao,
+        "total_peso": total_peso,
+        "total_peso_sim": total_peso_sim,
+        "benchmark": benchmark,
+        "historico": historico,
     }
 
 
@@ -107,7 +204,7 @@ def registrar_log_resposta(resposta: Resposta, usuario):
 
 
 def progresso_avaliacao(avaliacao):
-    total_questoes = avaliacao.total_questoes()
+    total_questoes = Questao.objects.filter(ativa=True).count()
     respondidas = avaliacao.total_respostas()
     percentual = round((respondidas / total_questoes) * 100, 1) if total_questoes else 0
     return {"total_questoes": total_questoes, "respondidas": respondidas, "percentual": percentual}

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @page {
+      size: A4;
+      margin: 2cm 2cm 2.5cm 2cm;
+      @bottom-center {
+        content: "SAM-TI — Relatório de Maturidade | Página " counter(page) " de " counter(pages);
+        font-size: 9pt;
+        color: #64748b;
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 10pt;
+      color: #1e293b;
+      line-height: 1.5;
+    }
+
+    /* ── CAPA ── */
+    .capa {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 22cm;
+      padding: 2cm 0;
+      border-bottom: 4px solid #2563eb;
+      margin-bottom: 2cm;
+      page-break-after: always;
+    }
+    .capa .tag {
+      font-size: 9pt;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #2563eb;
+      margin-bottom: .5cm;
+    }
+    .capa h1 {
+      font-size: 26pt;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.2;
+      margin-bottom: .3cm;
+    }
+    .capa h2 {
+      font-size: 14pt;
+      font-weight: 400;
+      color: #475569;
+      margin-bottom: 1cm;
+    }
+    .capa .meta {
+      font-size: 9pt;
+      color: #64748b;
+    }
+    .capa .meta span { display: block; margin-bottom: 2px; }
+
+    /* ── SEÇÕES ── */
+    h3 {
+      font-size: 13pt;
+      font-weight: 700;
+      color: #1e40af;
+      border-left: 4px solid #2563eb;
+      padding-left: .4cm;
+      margin: .7cm 0 .4cm;
+    }
+
+    /* ── CARDS DE SCORE ── */
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: .4cm;
+      margin-bottom: .8cm;
+    }
+    .score-card {
+      background: #f0f7ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      padding: .4cm;
+      text-align: center;
+    }
+    .score-card .value {
+      font-size: 18pt;
+      font-weight: 800;
+      color: #1d4ed8;
+      display: block;
+    }
+    .score-card .label {
+      font-size: 8pt;
+      color: #64748b;
+    }
+
+    /* ── BADGE MATURIDADE ── */
+    .badge-maturidade {
+      display: inline-block;
+      padding: .2cm .5cm;
+      border-radius: 20px;
+      font-size: 11pt;
+      font-weight: 700;
+      margin-bottom: .5cm;
+    }
+    .badge-artesanal { background: #fee2e2; color: #991b1b; }
+    .badge-eficiente { background: #fef9c3; color: #854d0e; }
+    .badge-eficaz    { background: #d1fae5; color: #065f46; }
+    .badge-estrategico { background: #dbeafe; color: #1e40af; }
+
+    /* ── BLOCO DE TEXTO ── */
+    .card-texto {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: .5cm;
+      margin-bottom: .5cm;
+    }
+    .card-texto p { margin-bottom: .3cm; }
+    .card-texto strong { color: #1e40af; }
+
+    /* ── TABELAS ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9pt;
+      margin-bottom: .8cm;
+    }
+    thead tr { background: #1e3a5f; color: white; }
+    thead th {
+      padding: .25cm .3cm;
+      text-align: left;
+      font-weight: 700;
+    }
+    tbody tr:nth-child(even) { background: #f1f5f9; }
+    tbody td {
+      padding: .2cm .3cm;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: top;
+    }
+
+    /* ── BARRA DE PROGRESSO ── */
+    .barra-wrap { background: #e2e8f0; border-radius: 4px; height: 8px; width: 100%; margin: .1cm 0 .3cm; }
+    .barra { background: #2563eb; height: 8px; border-radius: 4px; }
+    .barra-label { display: flex; justify-content: space-between; font-size: 8pt; color: #64748b; }
+
+    /* ── LISTA DE RECOMENDAÇÕES ── */
+    .rec-list { list-style: none; padding: 0; }
+    .rec-list li {
+      padding: .2cm .4cm;
+      margin-bottom: .2cm;
+      background: #eff6ff;
+      border-left: 3px solid #2563eb;
+      border-radius: 0 4px 4px 0;
+      font-size: 9.5pt;
+    }
+
+    /* ── STATUS BADGES ── */
+    .status-aberto      { color: #b45309; font-weight: 700; }
+    .status-andamento   { color: #1d4ed8; font-weight: 700; }
+    .status-concluido   { color: #065f46; font-weight: 700; }
+
+    /* ── PAGE BREAKS ── */
+    .quebra { page-break-before: always; }
+  </style>
+</head>
+<body>
+
+  <!-- CAPA -->
+  <div class="capa">
+    <p class="tag">SAM-TI · Sistema de Avaliação de Maturidade de TI</p>
+    <h1>Relatório de<br>Maturidade em TI</h1>
+    <h2>{{ avaliacao.empresa.nome }}</h2>
+    <div class="meta">
+      <span><strong>Avaliação:</strong> {{ avaliacao.nome }}</span>
+      <span><strong>Setor:</strong> {{ avaliacao.empresa.setor|default:"—" }}</span>
+      <span><strong>CNPJ:</strong> {{ avaliacao.empresa.cnpj|default:"—" }}</span>
+      <span><strong>Consultor:</strong> {{ avaliacao.consultor_responsavel.get_full_name|default:avaliacao.consultor_responsavel.username }}</span>
+      <span><strong>Data de geração:</strong> {% now "d/m/Y" %}</span>
+      <span><strong>Status:</strong> {{ avaliacao.get_status_display }}</span>
+    </div>
+  </div>
+
+  <!-- SUMÁRIO EXECUTIVO -->
+  <h3>1. Resultado Geral</h3>
+
+  <div class="score-grid">
+    <div class="score-card">
+      <span class="value">{{ score_geral }}%</span>
+      <span class="label">Score Ponderado</span>
+    </div>
+    <div class="score-card">
+      <span class="value">{{ total_respondido }}</span>
+      <span class="label">Questões Avaliadas</span>
+    </div>
+    <div class="score-card">
+      <span class="value">{{ total_sim }}</span>
+      <span class="label">Conformidades (SIM)</span>
+    </div>
+    <div class="score-card">
+      <span class="value">{{ plano_acao|length }}</span>
+      <span class="label">Ações no Plano</span>
+    </div>
+  </div>
+
+  {% if classificacao == "Artesanal (Reativo)" %}
+    <span class="badge-maturidade badge-artesanal">🔴 {{ classificacao }}</span>
+  {% elif classificacao == "Eficiente (Proativo)" %}
+    <span class="badge-maturidade badge-eficiente">🟡 {{ classificacao }}</span>
+  {% elif classificacao == "Eficaz (Otimizado)" %}
+    <span class="badge-maturidade badge-eficaz">🟢 {{ classificacao }}</span>
+  {% else %}
+    <span class="badge-maturidade badge-estrategico">🔵 {{ classificacao }}</span>
+  {% endif %}
+
+  <div class="card-texto">
+    <p><strong>Definição do nível:</strong> {{ descricao_maturidade }}</p>
+    <p><strong>O que isso indica:</strong> {{ implicacoes_maturidade }}</p>
+    {% if benchmark %}
+    <p><strong>Benchmark do setor ({{ benchmark.setor }}):</strong>
+       média de {{ benchmark.media_setor }}% em {{ benchmark.amostra }} avaliação(ões) concluída(s).</p>
+    {% endif %}
+  </div>
+
+  <!-- SCORE POR CATEGORIA -->
+  <h3>2. Score por Área</h3>
+
+  {% for item in score_categoria %}
+  <div style="margin-bottom:.4cm;">
+    <div class="barra-label">
+      <span>{{ item.categoria }}</span>
+      <span>{{ item.score }}% ({{ item.total }} questões · peso {{ item.peso_total }})</span>
+    </div>
+    <div class="barra-wrap">
+      <div class="barra" style="width:{{ item.score }}%;"></div>
+    </div>
+  </div>
+  {% endfor %}
+
+  <!-- RECOMENDAÇÕES -->
+  <h3>3. Recomendações para Evolução</h3>
+  <ul class="rec-list">
+    {% for rec in recomendacoes_maturidade %}
+    <li>{{ rec }}</li>
+    {% endfor %}
+  </ul>
+
+  <!-- PLANO DE AÇÃO -->
+  <div class="quebra">
+  <h3>4. Plano de Ação Consolidado (5W2H)</h3>
+
+  {% if plano_acao %}
+  <table>
+    <thead>
+      <tr>
+        <th style="width:18%">Área</th>
+        <th style="width:22%">O que (Questão)</th>
+        <th style="width:20%">Por quê (Providência)</th>
+        <th style="width:10%">Quando</th>
+        <th style="width:14%">Quem</th>
+        <th style="width:16%">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in plano_acao %}
+      <tr>
+        <td>{{ r.questao.categoria.nome }}</td>
+        <td>{{ r.questao.texto|truncatechars:80 }}</td>
+        <td>{{ r.providencia|truncatechars:80 }}</td>
+        <td>
+          {% if r.plano_acao and r.plano_acao.data_limite %}
+            {{ r.plano_acao.data_limite|date:"d/m/Y" }}
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          {% if r.plano_acao and r.plano_acao.responsavel %}
+            {{ r.plano_acao.responsavel.get_full_name|default:r.plano_acao.responsavel.username }}
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          {% if r.plano_acao %}
+            {% if r.plano_acao.status == "ABERTO" %}
+              <span class="status-aberto">Aberto</span>
+            {% elif r.plano_acao.status == "EM_ANDAMENTO" %}
+              <span class="status-andamento">Em andamento</span>
+            {% else %}
+              <span class="status-concluido">Concluído</span>
+            {% endif %}
+          {% else %}
+            Pendente
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p>Nenhuma providência registrada para o plano de ação.</p>
+  {% endif %}
+  </div>
+
+  <!-- HISTÓRICO -->
+  {% if historico %}
+  <h3>5. Histórico de Avaliações da Empresa</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Avaliação</th>
+        <th>Data</th>
+        <th>Status</th>
+        <th>Score</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in historico %}
+      <tr>
+        <td>{{ item.nome }}</td>
+        <td>{{ item.criada_em|date:"d/m/Y" }}</td>
+        <td>{{ item.status }}</td>
+        <td>{{ item.score }}%</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+</body>
+</html>

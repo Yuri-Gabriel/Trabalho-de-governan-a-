@@ -9,6 +9,7 @@
     </div>
     <div class="actions">
       <a class="btn" href="{% url 'relatorio' avaliacao.id %}">Ver relatório</a>
+      <a class="btn" href="{% url 'matriz_risco' avaliacao.id %}">Matriz de riscos</a>
       {% if request.user.profile.role == 'ADMIN' or avaliacao.consultor_responsavel_id == request.user.id %}
       <a class="btn" href="{% url 'auditoria' avaliacao.id %}">Auditoria</a>
       <form method="post" action="{% url 'concluir_avaliacao' avaliacao.id %}">
@@ -30,7 +31,7 @@
   <div class="table-wrap">
     <table>
       <thead>
-      <tr><th>Categoria</th><th>Questão</th><th>Resposta</th><th>Último responsável</th><th></th></tr>
+      <tr><th>Categoria</th><th>Questão</th><th>Framework</th><th>Ref.</th><th>Peso</th><th>Resposta</th><th>Último responsável</th><th></th></tr>
       </thead>
       <tbody>
       {% for q in questoes %}
@@ -38,6 +39,9 @@
       <tr>
         <td>{{ q.categoria.nome }}</td>
         <td>{{ q.texto }}</td>
+        <td>{{ q.get_framework_origem_display }}</td>
+        <td>{{ q.referencia|default:'-' }}</td>
+        <td>{{ q.peso }}</td>
         <td>{% if r %}{{ r.get_resposta_display }}{% else %}-{% endif %}</td>
         <td>{% if r %}{{ r.respondido_por.username }}{% else %}-{% endif %}</td>
         <td>
@@ -48,6 +52,23 @@
           {% endif %}
         </td>
       </tr>
+      {% if r and r.resposta == 'NAO' %}
+      <tr>
+        <td colspan="8">
+          <strong>Plano de ação:</strong>
+          {% if r.plano_acao %}
+            Status: {{ r.plano_acao.get_status_display }} |
+            Prazo: {{ r.plano_acao.data_limite|default:'-' }} |
+            Responsável: {{ r.plano_acao.responsavel.username|default:'-' }}
+          {% else %}
+            Pendente de detalhamento.
+          {% endif %}
+          {% if request.user.profile.role == 'ADMIN' or avaliacao.consultor_responsavel_id == request.user.id %}
+          - <a href="{% url 'plano_acao_update' avaliacao.id r.id %}">Editar plano</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endif %}
       {% endwith %}
       {% endfor %}
       </tbody>

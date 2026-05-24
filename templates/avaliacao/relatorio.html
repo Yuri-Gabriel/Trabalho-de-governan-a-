@@ -1,9 +1,21 @@
 {% extends 'base.html' %}
 {% block content %}
+
+{% if request.user.profile.role == 'ADMIN' or request.user.profile.role == 'CONSULTOR' %}
+<div style="display:flex; justify-content:flex-end; margin-bottom:1rem; gap:.75rem; flex-wrap:wrap;">
+  <a href="{% url 'exportar_relatorio_pdf' avaliacao.id %}" class="btn-plano" style="background:#dc2626;">
+    📄 Exportar Relatório PDF
+  </a>
+  <a href="{% url 'plano_acao_5w2h' avaliacao.id %}" class="btn-plano">
+    📋 Gerenciar Plano de Ação 5W2H
+  </a>
+</div>
+{% endif %}
+
 <section class="stats-grid">
   <article class="card stat">
     <h3>{{ score_geral }}%</h3>
-    <p>Score geral</p>
+    <p>Score geral ponderado</p>
   </article>
   <article class="card stat">
     <h3>{{ classificacao }}</h3>
@@ -13,28 +25,57 @@
     <h3>{{ total_respondido }}</h3>
     <p>Respostas consideradas</p>
   </article>
+  <article class="card stat">
+    <h3>{{ total_peso }}</h3>
+    <p>Peso total analisado</p>
+  </article>
 </section>
 
 <section class="card">
   <h3>Leitura executiva do resultado</h3>
   <p><strong>Definição do nível:</strong> {{ descricao_maturidade }}</p>
   <p><strong>O que isso indica:</strong> {{ implicacoes_maturidade }}</p>
+  {% if benchmark %}
+  <p><strong>Benchmark do setor ({{ benchmark.setor }}):</strong> média de {{ benchmark.media_setor }}% em {{ benchmark.amostra }} avaliação(ões) concluída(s).</p>
+  {% endif %}
 </section>
 
 <section class="card">
   <h3>Score por área</h3>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Categoria</th><th>Score</th><th>Questões</th></tr></thead>
+      <thead><tr><th>Categoria</th><th>Score</th><th>Questões</th><th>Peso total</th></tr></thead>
       <tbody>
         {% for item in score_categoria %}
         <tr>
           <td>{{ item.categoria }}</td>
           <td>{{ item.score }}%</td>
           <td>{{ item.total }}</td>
+          <td>{{ item.peso_total }}</td>
         </tr>
         {% empty %}
-        <tr><td colspan="3">Ainda não há respostas para calcular score.</td></tr>
+        <tr><td colspan="4">Ainda não há respostas para calcular score.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card">
+  <h3>Evolução histórica da empresa</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Avaliação</th><th>Data</th><th>Status</th><th>Score ponderado</th></tr></thead>
+      <tbody>
+        {% for item in historico %}
+        <tr>
+          <td>{{ item.nome }}</td>
+          <td>{{ item.criada_em|date:'d/m/Y H:i' }}</td>
+          <td>{{ item.status }}</td>
+          <td>{{ item.score }}%</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">Sem avaliações anteriores para comparação.</td></tr>
         {% endfor %}
       </tbody>
     </table>
@@ -54,17 +95,22 @@
   <h3>Plano de ação consolidado (Providências)</h3>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Categoria</th><th>Questão</th><th>Providência</th><th>Responsável</th></tr></thead>
+      <thead><tr><th>Categoria</th><th>Questão</th><th>Framework</th><th>Ref.</th><th>Peso</th><th>Providência</th><th>Status</th><th>Prazo</th><th>Responsável</th></tr></thead>
       <tbody>
         {% for resposta in plano_acao %}
         <tr>
           <td>{{ resposta.questao.categoria.nome }}</td>
           <td>{{ resposta.questao.texto }}</td>
+          <td>{{ resposta.questao.get_framework_origem_display }}</td>
+          <td>{{ resposta.questao.referencia|default:'-' }}</td>
+          <td>{{ resposta.questao.peso }}</td>
           <td>{{ resposta.providencia }}</td>
-          <td>{{ resposta.respondido_por.username }}</td>
+          <td>{% if resposta.plano_acao %}{{ resposta.plano_acao.get_status_display }}{% else %}Pendente{% endif %}</td>
+          <td>{% if resposta.plano_acao %}{{ resposta.plano_acao.data_limite|default:'-' }}{% else %}-{% endif %}</td>
+          <td>{% if resposta.plano_acao and resposta.plano_acao.responsavel %}{{ resposta.plano_acao.responsavel.username }}{% else %}-{% endif %}</td>
         </tr>
         {% empty %}
-        <tr><td colspan="4">Nenhuma providência registrada.</td></tr>
+        <tr><td colspan="9">Nenhuma providência registrada.</td></tr>
         {% endfor %}
       </tbody>
     </table>
