@@ -9,6 +9,12 @@
   <a href="{% url 'plano_acao_5w2h' avaliacao.id %}" class="btn-plano">
     📋 Gerenciar Plano de Ação 5W2H
   </a>
+  <a href="{% url 'pdti_view' avaliacao.id %}" class="btn-plano">
+    🧾 PDTI
+  </a>
+  <a href="{% url 'metas_2029_list' avaliacao.empresa.id %}" class="btn-plano">
+    🎯 Metas 2029
+  </a>
 </div>
 {% endif %}
 
@@ -95,7 +101,7 @@
   <h3>Plano de ação consolidado (Providências)</h3>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Categoria</th><th>Questão</th><th>Framework</th><th>Ref.</th><th>Peso</th><th>Providência</th><th>Status</th><th>Prazo</th><th>Responsável</th></tr></thead>
+      <thead><tr><th>Categoria</th><th>Questão</th><th>Framework</th><th>Ref.</th><th>Peso</th><th>Providência</th><th>Status</th><th>Prazo</th><th>Responsável</th><th>Custo (R$)</th><th>Natureza</th><th>Recorrência</th></tr></thead>
       <tbody>
         {% for resposta in plano_acao %}
         <tr>
@@ -108,9 +114,12 @@
           <td>{% if resposta.plano_acao %}{{ resposta.plano_acao.get_status_display }}{% else %}Pendente{% endif %}</td>
           <td>{% if resposta.plano_acao %}{{ resposta.plano_acao.data_limite|default:'-' }}{% else %}-{% endif %}</td>
           <td>{% if resposta.plano_acao and resposta.plano_acao.responsavel %}{{ resposta.plano_acao.responsavel.username }}{% else %}-{% endif %}</td>
+          <td>{% if resposta.plano_acao and resposta.plano_acao.custo_valor %}{{ resposta.plano_acao.custo_valor }}{% else %}-{% endif %}</td>
+          <td>{% if resposta.plano_acao %}{{ resposta.plano_acao.custo_natureza|default:'-' }}{% else %}-{% endif %}</td>
+          <td>{% if resposta.plano_acao %}{{ resposta.plano_acao.get_custo_recorrencia_display }}{% else %}-{% endif %}</td>
         </tr>
         {% empty %}
-        <tr><td colspan="9">Nenhuma providência registrada.</td></tr>
+        <tr><td colspan="12">Nenhuma providência registrada.</td></tr>
         {% endfor %}
       </tbody>
     </table>

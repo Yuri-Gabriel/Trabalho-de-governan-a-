@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body { font-family: sans-serif; font-size: 12px; }
+    h1 { font-size: 18px; margin: 0 0 8px 0; }
+    h2 { font-size: 14px; margin: 16px 0 8px 0; }
+    .muted { color: #666; }
+    table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+    th, td { border: 1px solid #ddd; padding: 6px; vertical-align: top; }
+    th { background: #f3f3f3; }
+  </style>
+</head>
+<body>
+  <h1>PDTI (Plano Diretor de Tecnologia da Informação) — 2026–2029</h1>
+  <p class="muted">Empresa: {{ empresa.nome }} | Avaliação: {{ avaliacao.nome }} | Data: {{ avaliacao.criada_em|date:'Y-m-d' }}</p>
+
+  <h2>1. Introdução</h2>
+  <p>{{ pdti.introducao|linebreaksbr }}</p>
+
+  <h2>2. Objetivos Estratégicos do PDTI</h2>
+  <p>{{ pdti.objetivos_estrategicos_texto|linebreaksbr }}</p>
+
+  <table>
+    <thead><tr><th>Objetivo Estratégico</th><th>Resultado esperado até 2029</th></tr></thead>
+    <tbody>
+      {% for o in objetivos %}
+      <tr><td>{{ o.objetivo }}</td><td>{{ o.resultado_esperado_2029 }}</td></tr>
+      {% empty %}
+      <tr><td colspan="2">Nenhum objetivo cadastrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>3. Análise Situacional</h2>
+  <p>{{ pdti.analise_situacional|linebreaksbr }}</p>
+
+  <h2>4. Diagnóstico Situacional (SAM-TI)</h2>
+  <p>{{ pdti.diagnostico_samti|linebreaksbr }}</p>
+
+  <h2>5. Análise de Riscos</h2>
+  <p>{{ pdti.analise_de_riscos|linebreaksbr }}</p>
+
+  <h2>6. Estrutura de Governança Proposta</h2>
+  <p>{{ pdti.estrutura_governanca|linebreaksbr }}</p>
+
+  <h2>7. Plano Estratégico de Evolução</h2>
+  <p>{{ pdti.roadmap_evolucao|linebreaksbr }}</p>
+
+  <h2>8. Plano de Ação Prioritário (5W2H)</h2>
+  <p class="muted">Gerado a partir das respostas "NÃO" da avaliação.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Área</th><th>O que</th><th>Por quê</th><th>Quando</th><th>Onde</th><th>Quem</th><th>Como</th><th>Custo/Esforço</th><th>Custo (R$)</th><th>Natureza</th><th>Recorrência</th><th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in respostas_nao %}
+      <tr>
+        <td>{{ r.questao.categoria.nome }}</td>
+        <td>{{ r.questao.texto }}</td>
+        <td>{{ r.providencia }}</td>
+        <td>{% if r.plano_acao.data_limite %}{{ r.plano_acao.data_limite|date:'Y-m-d' }}{% else %}-{% endif %}</td>
+        <td>{{ r.plano_acao.where_local|default:'-' }}</td>
+        <td>{% if r.plano_acao.responsavel %}{{ r.plano_acao.responsavel.username }}{% else %}-{% endif %}</td>
+        <td>{{ r.plano_acao.how|default:'-' }}</td>
+        <td>{{ r.plano_acao.how_much|default:'-' }}</td>
+        <td>{% if r.plano_acao.custo_valor %}{{ r.plano_acao.custo_valor }}{% else %}-{% endif %}</td>
+        <td>{{ r.plano_acao.custo_natureza|default:'-' }}</td>
+        <td>{{ r.plano_acao.get_custo_recorrencia_display }}</td>
+        <td>{{ r.plano_acao.get_status_display }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="12">Nenhuma ação registrada.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>9. Indicadores Estratégicos (KPIs) e Metas 2029</h2>
+  <table>
+    <thead><tr><th>Indicador</th><th>Atual</th><th>Meta 2029</th><th>Unidade</th><th>Obs.</th></tr></thead>
+    <tbody>
+      {% for m in metas %}
+      <tr><td>{{ m.nome_indicador }}</td><td>{{ m.situacao_atual }}</td><td>{{ m.meta_2029 }}</td><td>{{ m.unidade }}</td><td>{{ m.observacoes }}</td></tr>
+      {% empty %}
+      <tr><td colspan="5">Nenhuma meta cadastrada.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>10. Visão de Futuro</h2>
+  <p>{{ pdti.visao_de_futuro|linebreaksbr }}</p>
+
+  <h2>11. Conclusão</h2>
+  <p>{{ pdti.conclusao|linebreaksbr }}</p>
+</body>
+</html>

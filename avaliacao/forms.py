@@ -5,6 +5,9 @@ from .models import (
     Avaliacao,
     CategoriaQuestao,
     Empresa,
+    MetaIndicador,
+    ObjetivoEstrategicoPDTI,
+    PDTI,
     PlanoAcao,
     Questao,
     Resposta,
@@ -63,7 +66,17 @@ class RespostaForm(forms.ModelForm):
 class PlanoAcaoForm(forms.ModelForm):
     class Meta:
         model = PlanoAcao
-        fields = ["responsavel", "data_limite", "status", "where_local", "how", "how_much"]
+        fields = [
+            "responsavel",
+            "data_limite",
+            "status",
+            "where_local",
+            "how",
+            "how_much",
+            "custo_valor",
+            "custo_natureza",
+            "custo_recorrencia",
+        ]
         widgets = {
             "data_limite": forms.DateInput(attrs={"type": "date"}),
             "how": forms.Textarea(attrs={"rows": 2}),
@@ -72,14 +85,28 @@ class PlanoAcaoForm(forms.ModelForm):
 
 class PlanoAcaoInlineForm(forms.ModelForm):
     """Form compacto para edição inline na página 5W2H."""
+
     class Meta:
         model = PlanoAcao
-        fields = ["responsavel", "data_limite", "status", "where_local", "how", "how_much"]
+        fields = [
+            "responsavel",
+            "data_limite",
+            "status",
+            "where_local",
+            "how",
+            "how_much",
+            "custo_valor",
+            "custo_natureza",
+            "custo_recorrencia",
+        ]
         widgets = {
             "data_limite": forms.DateInput(attrs={"type": "date", "class": "input-compact"}),
             "how": forms.Textarea(attrs={"rows": 2, "class": "input-compact"}),
             "where_local": forms.TextInput(attrs={"class": "input-compact"}),
             "how_much": forms.TextInput(attrs={"class": "input-compact"}),
+            "custo_valor": forms.NumberInput(attrs={"class": "input-compact", "step": "0.01"}),
+            "custo_natureza": forms.Select(attrs={"class": "input-compact"}),
+            "custo_recorrencia": forms.Select(attrs={"class": "input-compact"}),
         }
 
 
@@ -90,4 +117,46 @@ class RiscoAvaliacaoForm(forms.ModelForm):
         widgets = {
             "descricao": forms.Textarea(attrs={"rows": 3}),
             "plano_mitigacao": forms.Textarea(attrs={"rows": 3}),
+        }
+
+
+class MetaIndicadorForm(forms.ModelForm):
+    class Meta:
+        model = MetaIndicador
+        fields = ["nome_indicador", "unidade", "situacao_atual", "meta_2029", "observacoes"]
+        widgets = {
+            "observacoes": forms.Textarea(attrs={"rows": 3}),
+        }
+
+
+class ObjetivoEstrategicoPDTIForm(forms.ModelForm):
+    class Meta:
+        model = ObjetivoEstrategicoPDTI
+        fields = ["objetivo", "resultado_esperado_2029"]
+
+
+class PDTIForm(forms.ModelForm):
+    class Meta:
+        model = PDTI
+        fields = [
+            "introducao",
+            "objetivos_estrategicos_texto",
+            "analise_situacional",
+            "diagnostico_samti",
+            "analise_de_riscos",
+            "estrutura_governanca",
+            "roadmap_evolucao",
+            "visao_de_futuro",
+            "conclusao",
+        ]
+        widgets = {
+            "introducao": forms.Textarea(attrs={"rows": 4}),
+            "objetivos_estrategicos_texto": forms.Textarea(attrs={"rows": 4}),
+            "analise_situacional": forms.Textarea(attrs={"rows": 4}),
+            "diagnostico_samti": forms.Textarea(attrs={"rows": 4}),
+            "analise_de_riscos": forms.Textarea(attrs={"rows": 4}),
+            "estrutura_governanca": forms.Textarea(attrs={"rows": 4}),
+            "roadmap_evolucao": forms.Textarea(attrs={"rows": 4}),
+            "visao_de_futuro": forms.Textarea(attrs={"rows": 4}),
+            "conclusao": forms.Textarea(attrs={"rows": 4}),
         }

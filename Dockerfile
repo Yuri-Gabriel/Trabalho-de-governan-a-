@@ -10,7 +10,10 @@ WORKDIR /app
 
 COPY requirements.txt .
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends default-libmysqlclient-dev gcc pkg-config \
+    && apt-get install -y --no-install-recommends \
+        default-libmysqlclient-dev gcc pkg-config \
+        libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf-2.0-0 \
+        shared-mime-info fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir -r requirements.txt
 

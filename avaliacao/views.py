@@ -11,9 +11,11 @@ from django.views.decorators.http import require_http_methods, require_POST
 from .decorators import role_required
 from .forms import (
     AvaliacaoForm,
-    PlanoAcaoInlineForm,
     CategoriaQuestaoForm,
     EmpresaForm,
+    MetaIndicadorForm,
+    ObjetivoEstrategicoPDTIForm,
+    PDTIForm,
     PlanoAcaoForm,
     PlanoAcaoInlineForm,
     QuestaoForm,
@@ -26,6 +28,9 @@ from .models import (
     CategoriaQuestao,
     Empresa,
     LogAuditoriaResposta,
+    MetaIndicador,
+    ObjetivoEstrategicoPDTI,
+    PDTI,
     PlanoAcao,
     PlanoAcaoStatus,
     Questao,
@@ -511,7 +516,7 @@ def exportar_plano_xlsx(request, avaliacao_id):
     wrap = Alignment(wrap_text=True, vertical="top")
 
     # Título
-    ws.merge_cells("A1:J1")
+    ws.merge_cells("A1:L1")
     ws["A1"] = f"Plano de Ação 5W2H — {avaliacao.empresa.nome} — {avaliacao.nome}"
     ws["A1"].font = title_font
     ws["A1"].alignment = Alignment(horizontal="center", vertical="center")
@@ -527,6 +532,9 @@ def exportar_plano_xlsx(request, avaliacao_id):
         "Who (Quem?)",
         "How (Como?)",
         "How Much (Custo/Esforço)",
+        "Custo (R$)",
+        "Natureza",
+        "Recorrência",
         "Status",
         "Framework",
     ]
@@ -547,6 +555,9 @@ def exportar_plano_xlsx(request, avaliacao_id):
         where_val = plano.where_local if plano else "-"
         how_val = plano.how if plano else "-"
         how_much_val = plano.how_much if plano else "-"
+        custo_val = float(plano.custo_valor) if (plano and plano.custo_valor is not None) else "-"
+        natureza_val = plano.custo_natureza if plano else "-"
+        recorr_val = plano.get_custo_recorrencia_display() if plano else "-"
 
         row = [
             r.questao.categoria.nome,
@@ -557,6 +568,9 @@ def exportar_plano_xlsx(request, avaliacao_id):
             responsavel_nome,
             how_val or "-",
             how_much_val or "-",
+            custo_val,
+            natureza_val or "-",
+            recorr_val or "-",
             status_display,
             r.questao.get_framework_origem_display(),
         ]
@@ -565,7 +579,7 @@ def exportar_plano_xlsx(request, avaliacao_id):
             ws.cell(row=ws.max_row, column=col).alignment = wrap
 
     # Larguras
-    col_widths = [22, 45, 45, 14, 25, 22, 40, 25, 16, 16]
+    col_widths = [22, 45, 45, 14, 25, 22, 40, 22, 14, 12, 14, 16, 16]
     for i, width in enumerate(col_widths, start=1):
         ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = width
 
@@ -611,6 +625,174 @@ def exportar_relatorio_pdf(request, avaliacao_id):
     pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri("/")).write_pdf()
 
     filename = f"relatorio_sam_ti_{avaliacao.empresa.nome.replace(' ', '_')}_{avaliacao_id}.pdf"
+    response = HttpResponse(pdf_file, content_type="application/pdf")
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return response
+
+
+# ─────────────────────────────────────────────
+# METAS DE FUTURO (2029) — por Empresa
+# ─────────────────────────────────────────────
+
+@role_required(UserRole.ADMIN, UserRole.CONSULTOR)
+@require_http_methods(["GET"])
+def metas_2029_list(request, empresa_id):
+    empresa = get_object_or_404(Empresa, id=empresa_id)
+
+    if request.user.profile.role != UserRole.ADMIN and empresa.owner_id != request.user.id:
+        # consultor pode acessar via avaliação; aqui mantemos simples e restrito
+        pass
+
+    metas = MetaIndicador.objects.filter(empresa=empresa)
+    return render(request, "avaliacao/metas_2029_list.html", {"empresa": empresa, "metas": metas})
+
+
+@role_required(UserRole.ADMIN, UserRole.CONSULTOR)
+@require_http_methods(["GET", "POST"])
+def metas_2029_create(request, empresa_id):
+    empresa = get_object_or_404(Empresa, id=empresa_id)
+
+    if request.method == "POST":
+        form = MetaIndicadorForm(request.POST)
+        if form.is_valid():
+            meta = form.save(commit=False)
+            meta.empresa = empresa
+            meta.save()
+            messages.success(request, "Meta criada.")
+            return redirect("metas_2029_list", empresa_id=empresa.id)
+    else:
+        form = MetaIndicadorForm()
+
+    return render(request, "avaliacao/form.html", {"form": form, "titulo": "Nova meta (2029)"})
+
+
+@role_required(UserRole.ADMIN, UserRole.CONSULTOR)
+@require_http_methods(["GET", "POST"])
+def metas_2029_update(request, empresa_id, meta_id):
+    empresa = get_object_or_404(Empresa, id=empresa_id)
+    meta = get_object_or_404(MetaIndicador, id=meta_id, empresa=empresa)
+
+    if request.method == "POST":
+        form = MetaIndicadorForm(request.POST, instance=meta)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Meta atualizada.")
+            return redirect("metas_2029_list", empresa_id=empresa.id)
+    else:
+        form = MetaIndicadorForm(instance=meta)
+
+    return render(request, "avaliacao/form.html", {"form": form, "titulo": "Editar meta (2029)"})
+
+
+@role_required(UserRole.ADMIN, UserRole.CONSULTOR)
+@require_http_methods(["GET", "POST"])
+def metas_2029_delete(request, empresa_id, meta_id):
+    empresa = get_object_or_404(Empresa, id=empresa_id)
+    meta = get_object_or_404(MetaIndicador, id=meta_id, empresa=empresa)
+
+    if request.method == "POST":
+        meta.delete()
+        messages.success(request, "Meta removida.")
+        return redirect("metas_2029_list", empresa_id=empresa.id)
+
+    return render(
+        request,
+        "avaliacao/confirm_delete.html",
+        {"titulo": "Excluir meta", "descricao": meta.nome_indicador, "voltar_url": redirect("metas_2029_list", empresa_id=empresa.id).url},
+    )
+
+
+# ─────────────────────────────────────────────
+# PDTI — criar/editar/visualizar por Avaliação (somente quando CONCLUÍDA)
+# ─────────────────────────────────────────────
+
+@login_required
+@role_required(UserRole.ADMIN, UserRole.CONSULTOR)
+@require_http_methods(["GET", "POST"])
+def pdti_view(request, avaliacao_id):
+    avaliacao = get_object_or_404(Avaliacao, id=avaliacao_id)
+
+    if not _usuario_acessa_avaliacao(request.user, avaliacao):
+        messages.error(request, "Você não tem acesso.")
+        return redirect("dashboard")
+
+    pdti, _ = PDTI.objects.get_or_create(avaliacao=avaliacao)
+
+    pode_editar = _usuario_gerencia_avaliacao(request.user, avaliacao) and avaliacao.status == AvaliacaoStatus.CONCLUIDA
+
+    if request.method == "POST":
+        if not pode_editar:
+            messages.error(request, "O PDTI só pode ser editado após a avaliação estar concluída.")
+            return redirect("pdti_view", avaliacao_id=avaliacao.id)
+
+        form = PDTIForm(request.POST, instance=pdti)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "PDTI salvo.")
+            return redirect("pdti_view", avaliacao_id=avaliacao.id)
+    else:
+        form = PDTIForm(instance=pdti)
+
+    objetivos = ObjetivoEstrategicoPDTI.objects.filter(empresa=avaliacao.empresa)
+    metas = MetaIndicador.objects.filter(empresa=avaliacao.empresa)
+
+    dados = gerar_relatorio(avaliacao)
+
+    return render(
+        request,
+        "avaliacao/pdti.html",
+        {
+            "avaliacao": avaliacao,
+            "empresa": avaliacao.empresa,
+            "pdti": pdti,
+            "form": form,
+            "pode_editar": pode_editar,
+            "objetivos": objetivos,
+            "metas": metas,
+            "relatorio": dados,
+        },
+    )
+
+
+@login_required
+@role_required(UserRole.ADMIN, UserRole.CONSULTOR)
+def exportar_pdti_pdf(request, avaliacao_id):
+    avaliacao = get_object_or_404(Avaliacao, id=avaliacao_id)
+
+    if not _usuario_acessa_avaliacao(request.user, avaliacao):
+        messages.error(request, "Você não tem acesso.")
+        return redirect("dashboard")
+
+    try:
+        from weasyprint import HTML
+    except ImportError:
+        messages.error(request, "WeasyPrint não está instalado corretamente.")
+        return redirect("pdti_view", avaliacao_id=avaliacao_id)
+
+    pdti, _ = PDTI.objects.get_or_create(avaliacao=avaliacao)
+    objetivos = ObjetivoEstrategicoPDTI.objects.filter(empresa=avaliacao.empresa)
+    metas = MetaIndicador.objects.filter(empresa=avaliacao.empresa)
+
+    dados = gerar_relatorio(avaliacao)
+
+    html_string = render_to_string(
+        "avaliacao/pdti_pdf.html",
+        {
+            "avaliacao": avaliacao,
+            "empresa": avaliacao.empresa,
+            "pdti": pdti,
+            "objetivos": objetivos,
+            "metas": metas,
+            "respostas_nao": Resposta.objects.filter(avaliacao=avaliacao, resposta=RespostaEscolha.NAO)
+            .exclude(providencia="")
+            .select_related("questao__categoria", "plano_acao", "plano_acao__responsavel"),
+            **dados,
+        },
+    )
+
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri("/")).write_pdf()
+
+    filename = f"pdti_{avaliacao.empresa.nome.replace(' ', '_')}_{avaliacao_id}.pdf"
     response = HttpResponse(pdf_file, content_type="application/pdf")
     response["Content-Disposition"] = f'attachment; filename="{filename}"'
     return response

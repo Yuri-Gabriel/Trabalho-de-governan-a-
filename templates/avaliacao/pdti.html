@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="card">
+  <div class="row-between">
+    <div>
+      <h2>PDTI (Plano Diretor de Tecnologia da Informação)</h2>
+      <p>Empresa: <strong>{{ empresa.nome }}</strong> | Avaliação: <strong>{{ avaliacao.nome }}</strong></p>
+      <p>Status da avaliação: <strong>{{ avaliacao.get_status_display }}</strong></p>
+    </div>
+    <div class="actions">
+      <a class="btn" href="{% url 'avaliacao_detail' avaliacao.id %}">Voltar</a>
+      <a class="btn" href="{% url 'exportar_pdti_pdf' avaliacao.id %}">Exportar PDF</a>
+    </div>
+  </div>
+
+  {% if not pode_editar %}
+    <p><strong>Obs:</strong> o PDTI só pode ser editado quando a avaliação estiver <strong>Concluída</strong> e pelo consultor responsável ou admin.</p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h3>1. Introdução</h3>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.introducao }}
+
+    <h3>2. Objetivos Estratégicos do PDTI</h3>
+    {{ form.objetivos_estrategicos_texto }}
+
+    <h4>Tabela — Objetivo Estratégico x Resultado esperado (manual)</h4>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Objetivo Estratégico</th><th>Resultado esperado até 2029</th></tr>
+        </thead>
+        <tbody>
+          {% for o in objetivos %}
+          <tr><td>{{ o.objetivo }}</td><td>{{ o.resultado_esperado_2029 }}</td></tr>
+          {% empty %}
+          <tr><td colspan="2">Nenhum objetivo cadastrado para esta empresa.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <h3>3. Análise Situacional</h3>
+    {{ form.analise_situacional }}
+
+    <h3>4. Diagnóstico Situacional (SAM-TI)</h3>
+    {{ form.diagnostico_samti }}
+
+    <h3>5. Análise de Riscos</h3>
+    {{ form.analise_de_riscos }}
+
+    <h3>6. Estrutura de Governança Proposta</h3>
+    {{ form.estrutura_governanca }}
+
+    <h3>7. Plano Estratégico de Evolução</h3>
+    {{ form.roadmap_evolucao }}
+
+    <h3>8. Plano de Ação Prioritário (5W2H)</h3>
+    <p>O plano 5W2H abaixo é gerado automaticamente a partir das respostas "NÃO" da avaliação.</p>
+
+    <h3>9. Indicadores Estratégicos (KPIs) e Metas 2029</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Indicador</th><th>Atual</th><th>Meta 2029</th><th>Unidade</th><th>Obs.</th></tr>
+        </thead>
+        <tbody>
+          {% for m in metas %}
+          <tr><td>{{ m.nome_indicador }}</td><td>{{ m.situacao_atual }}</td><td>{{ m.meta_2029 }}</td><td>{{ m.unidade }}</td><td>{{ m.observacoes }}</td></tr>
+          {% empty %}
+          <tr><td colspan="5">Nenhuma meta cadastrada para esta empresa.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <h3>10. Visão de Futuro</h3>
+    {{ form.visao_de_futuro }}
+
+    <h3>11. Conclusão</h3>
+    {{ form.conclusao }}
+
+    {% if pode_editar %}
+      <button class="btn btn-primary" type="submit">Salvar PDTI</button>
+    {% endif %}
+  </form>
+</section>
+
+<section class="card">
+  <h3>Ações rápidas</h3>
+  <ul>
+    <li><a href="{% url 'plano_acao_5w2h' avaliacao.id %}">Abrir Plano de Ação 5W2H</a></li>
+    <li><a href="{% url 'metas_2029_list' empresa.id %}">Abrir Metas 2029</a></li>
+  </ul>
+</section>
+{% endblock %}

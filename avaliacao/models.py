@@ -146,11 +146,32 @@ class PlanoAcao(models.Model):
         related_name="planos_acao",
     )
     data_limite = models.DateField(null=True, blank=True)
-    status = models.CharField(max_length=20, choices=PlanoAcaoStatus.choices, default=PlanoAcaoStatus.ABERTO)
+
     # Campos 5W2H adicionais
-    where_local = models.CharField(max_length=255, blank=True, db_column="where", verbose_name="Where (onde será feito?)")
+    where_local = models.CharField(
+        max_length=255,
+        blank=True,
+        db_column="where",
+        verbose_name="Where (onde será feito?)",
+    )
     how = models.TextField(blank=True, verbose_name="How (como será feito?)")
     how_much = models.CharField(max_length=255, blank=True, verbose_name="How Much (custo/esforço estimado)")
+
+    # Custos nominais (R$)
+    custo_valor = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    custo_natureza = models.CharField(
+        max_length=10,
+        choices=[("CAPEX", "CAPEX"), ("OPEX", "OPEX")],
+        blank=True,
+        default="",
+    )
+    custo_recorrencia = models.CharField(
+        max_length=10,
+        choices=[("UNICO", "Único"), ("MENSAL", "Mensal"), ("ANUAL", "Anual")],
+        default="UNICO",
+    )
+
+    status = models.CharField(max_length=20, choices=PlanoAcaoStatus.choices, default=PlanoAcaoStatus.ABERTO)
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
 
@@ -204,6 +225,55 @@ class RiscoAvaliacao(models.Model):
         if self.nivel <= 19:
             return "Alto"
         return "Crítico"
+
+
+class MetaIndicador(models.Model):
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, related_name="metas_indicadores")
+    nome_indicador = models.CharField(max_length=180)
+    unidade = models.CharField(max_length=30, blank=True)
+    situacao_atual = models.CharField(max_length=120, blank=True)
+    meta_2029 = models.CharField(max_length=120, blank=True)
+    observacoes = models.TextField(blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["nome_indicador"]
+
+    def __str__(self):
+        return f"{self.empresa.nome} - {self.nome_indicador}"
+
+
+class ObjetivoEstrategicoPDTI(models.Model):
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, related_name="objetivos_pdti")
+    objetivo = models.CharField(max_length=255)
+    resultado_esperado_2029 = models.CharField(max_length=255)
+
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self):
+        return f"{self.empresa.nome} - {self.objetivo}"
+
+
+class PDTI(models.Model):
+    avaliacao = models.OneToOneField(Avaliacao, on_delete=models.CASCADE, related_name="pdti")
+
+    introducao = models.TextField(blank=True)
+    objetivos_estrategicos_texto = models.TextField(blank=True)
+    analise_situacional = models.TextField(blank=True)
+    diagnostico_samti = models.TextField(blank=True)
+    analise_de_riscos = models.TextField(blank=True)
+    estrutura_governanca = models.TextField(blank=True)
+    roadmap_evolucao = models.TextField(blank=True)
+    visao_de_futuro = models.TextField(blank=True)
+    conclusao = models.TextField(blank=True)
+
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"PDTI - {self.avaliacao.empresa.nome} ({self.avaliacao_id})"
 
 
 class LogAuditoriaResposta(models.Model):

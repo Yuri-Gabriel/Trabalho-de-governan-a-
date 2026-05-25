@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="card">
+  <div class="row-between">
+    <div>
+      <h2>Metas de Futuro (2029)</h2>
+      <p>Empresa: <strong>{{ empresa.nome }}</strong></p>
+    </div>
+    <div class="actions">
+      <a class="btn" href="{% url 'empresa_list' %}">Voltar</a>
+      <a class="btn btn-primary" href="{% url 'metas_2029_create' empresa.id %}">Nova meta</a>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Indicador</th>
+          <th>Unidade</th>
+          <th>Situação atual</th>
+          <th>Meta 2029</th>
+          <th>Observações</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in metas %}
+        <tr>
+          <td>{{ m.nome_indicador }}</td>
+          <td>{{ m.unidade|default:'-' }}</td>
+          <td>{{ m.situacao_atual|default:'-' }}</td>
+          <td>{{ m.meta_2029|default:'-' }}</td>
+          <td>{{ m.observacoes|default:'-' }}</td>
+          <td>
+            <a href="{% url 'metas_2029_update' empresa.id m.id %}">Editar</a> |
+            <a href="{% url 'metas_2029_delete' empresa.id m.id %}">Excluir</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">Nenhuma meta cadastrada.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
