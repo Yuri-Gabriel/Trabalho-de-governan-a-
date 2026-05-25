@@ -775,6 +775,18 @@ def exportar_pdti_pdf(request, avaliacao_id):
 
     dados = gerar_relatorio(avaliacao)
 
+    # Título do PDF:
+    # - usar o maior ano entre: objetivos (coluna `ano`) e metas (coluna `ano_conclusao`)
+    # - se não houver nenhum, usar apenas o ano atual
+    anos = [a for a in objetivos.values_list("ano", flat=True) if a]
+    anos += [a for a in metas.values_list("ano_conclusao", flat=True) if a]
+
+    if anos:
+        ano_final = max(anos)
+        pdf_titulo = f"PDTI (Plano Diretor de Tecnologia da Informação) — {ano_final}"
+    else:
+        pdf_titulo = f"PDTI (Plano Diretor de Tecnologia da Informação) - {avaliacao.criada_em.year}"
+
     html_string = render_to_string(
         "avaliacao/pdti_pdf.html",
         {
@@ -783,6 +795,7 @@ def exportar_pdti_pdf(request, avaliacao_id):
             "pdti": pdti,
             "objetivos": objetivos,
             "metas": metas,
+            "pdf_titulo": pdf_titulo,
             "respostas_nao": Resposta.objects.filter(avaliacao=avaliacao, resposta=RespostaEscolha.NAO)
             .exclude(providencia="")
             .select_related("questao__categoria", "plano_acao", "plano_acao__responsavel"),
