@@ -11,7 +11,7 @@
       <a class="btn" href="{% url 'relatorio' avaliacao.id %}">Ver relatório</a>
       <a class="btn" href="{% url 'matriz_risco' avaliacao.id %}">Matriz de riscos</a>
       <a class="btn" href="{% url 'pdti_view' avaliacao.id %}">PDTI</a>
-      <a class="btn" href="{% url 'metas_2029_list' avaliacao.empresa.id %}">Metas 2029</a>
+      <a class="btn" href="{% url 'metas_list' avaliacao.empresa.id %}">Metas</a>
       {% if request.user.profile.role == 'ADMIN' or avaliacao.consultor_responsavel_id == request.user.id %}
       <a class="btn" href="{% url 'auditoria' avaliacao.id %}">Auditoria</a>
       <form method="post" action="{% url 'concluir_avaliacao' avaliacao.id %}">

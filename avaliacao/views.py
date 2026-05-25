@@ -659,11 +659,11 @@ def metas_2029_create(request, empresa_id):
             meta.empresa = empresa
             meta.save()
             messages.success(request, "Meta criada.")
-            return redirect("metas_2029_list", empresa_id=empresa.id)
+            return redirect("metas_list", empresa_id=empresa.id)
     else:
         form = MetaIndicadorForm()
 
-    return render(request, "avaliacao/form.html", {"form": form, "titulo": "Nova meta (2029)"})
+    return render(request, "avaliacao/form.html", {"form": form, "titulo": "Nova meta"})
 
 
 @role_required(UserRole.ADMIN, UserRole.CONSULTOR)
@@ -677,11 +677,11 @@ def metas_2029_update(request, empresa_id, meta_id):
         if form.is_valid():
             form.save()
             messages.success(request, "Meta atualizada.")
-            return redirect("metas_2029_list", empresa_id=empresa.id)
+            return redirect("metas_list", empresa_id=empresa.id)
     else:
         form = MetaIndicadorForm(instance=meta)
 
-    return render(request, "avaliacao/form.html", {"form": form, "titulo": "Editar meta (2029)"})
+    return render(request, "avaliacao/form.html", {"form": form, "titulo": "Editar meta"})
 
 
 @role_required(UserRole.ADMIN, UserRole.CONSULTOR)
@@ -693,12 +693,12 @@ def metas_2029_delete(request, empresa_id, meta_id):
     if request.method == "POST":
         meta.delete()
         messages.success(request, "Meta removida.")
-        return redirect("metas_2029_list", empresa_id=empresa.id)
+        return redirect("metas_list", empresa_id=empresa.id)
 
     return render(
         request,
         "avaliacao/confirm_delete.html",
-        {"titulo": "Excluir meta", "descricao": meta.nome_indicador, "voltar_url": redirect("metas_2029_list", empresa_id=empresa.id).url},
+        {"titulo": "Excluir meta", "descricao": meta.nome_indicador, "voltar_url": redirect("metas_list", empresa_id=empresa.id).url},
     )
 
 

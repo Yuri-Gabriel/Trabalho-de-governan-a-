@@ -34,6 +34,12 @@ urlpatterns = [
     path("avaliacoes/<int:avaliacao_id>/plano-acao/exportar/", views.exportar_plano_xlsx, name="exportar_plano_xlsx"),
     path("avaliacoes/<int:avaliacao_id>/relatorio/pdf/", views.exportar_relatorio_pdf, name="exportar_relatorio_pdf"),
 
+    path("empresas/<int:empresa_id>/metas/", views.metas_2029_list, name="metas_list"),
+    path("empresas/<int:empresa_id>/metas/nova/", views.metas_2029_create, name="metas_create"),
+    path("empresas/<int:empresa_id>/metas/<int:meta_id>/editar/", views.metas_2029_update, name="metas_update"),
+    path("empresas/<int:empresa_id>/metas/<int:meta_id>/excluir/", views.metas_2029_delete, name="metas_delete"),
+
+    # Compatibilidade (rotas antigas)
     path("empresas/<int:empresa_id>/metas-2029/", views.metas_2029_list, name="metas_2029_list"),
     path("empresas/<int:empresa_id>/metas-2029/nova/", views.metas_2029_create, name="metas_2029_create"),
     path("empresas/<int:empresa_id>/metas-2029/<int:meta_id>/editar/", views.metas_2029_update, name="metas_2029_update"),

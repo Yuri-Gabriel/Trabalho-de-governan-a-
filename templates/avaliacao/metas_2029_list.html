@@ -8,7 +8,7 @@
     </div>
     <div class="actions">
       <a class="btn" href="{% url 'empresa_list' %}">Voltar</a>
-      <a class="btn btn-primary" href="{% url 'metas_2029_create' empresa.id %}">Nova meta</a>
+      <a class="btn btn-primary" href="{% url 'metas_create' empresa.id %}">Nova meta</a>
     </div>
   </div>
 </section>
@@ -37,8 +37,8 @@
           <td>{{ m.meta_conclusao|default:'-' }}</td>
           <td>{{ m.observacoes|default:'-' }}</td>
           <td>
-            <a href="{% url 'metas_2029_update' empresa.id m.id %}">Editar</a> |
-            <a href="{% url 'metas_2029_delete' empresa.id m.id %}">Excluir</a>
+            <a href="{% url 'metas_update' empresa.id m.id %}">Editar</a> |
+            <a href="{% url 'metas_delete' empresa.id m.id %}">Excluir</a>
           </td>
         </tr>
         {% empty %}
