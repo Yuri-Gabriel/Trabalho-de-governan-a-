@@ -260,7 +260,8 @@ class PDTI(models.Model):
     avaliacao = models.OneToOneField(Avaliacao, on_delete=models.CASCADE, related_name="pdti")
 
     introducao = models.TextField(blank=True)
-    objetivos_estrategicos_texto = models.TextField(blank=True)
+    # OBS: No banco legado a coluna se chama `objetivos_estrategicos`.
+    objetivos_estrategicos_texto = models.TextField(blank=True, db_column="objetivos_estrategicos")
     analise_situacional = models.TextField(blank=True)
     diagnostico_samti = models.TextField(blank=True)
     analise_de_riscos = models.TextField(blank=True)
