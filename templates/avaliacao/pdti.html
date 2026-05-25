@@ -31,13 +31,13 @@
     <div class="table-wrap">
       <table>
         <thead>
-          <tr><th>Objetivo Estratégico</th><th>Resultado esperado até 2029</th></tr>
+          <tr><th>Objetivo Estratégico</th><th>Resultado esperado</th><th>Ano</th></tr>
         </thead>
         <tbody>
           {% for o in objetivos %}
-          <tr><td>{{ o.objetivo }}</td><td>{{ o.resultado_esperado_2029 }}</td></tr>
+          <tr><td>{{ o.objetivo }}</td><td>{{ o.resultado_esperado }}</td><td>{{ o.ano|default:'-' }}</td></tr>
           {% empty %}
-          <tr><td colspan="2">Nenhum objetivo cadastrado para esta empresa.</td></tr>
+          <tr><td colspan="3">Nenhum objetivo cadastrado para esta empresa.</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -61,17 +61,17 @@
     <h3>8. Plano de Ação Prioritário (5W2H)</h3>
     <p>O plano 5W2H abaixo é gerado automaticamente a partir das respostas "NÃO" da avaliação.</p>
 
-    <h3>9. Indicadores Estratégicos (KPIs) e Metas 2029</h3>
+    <h3>9. Indicadores Estratégicos (KPIs) e Metas</h3>
     <div class="table-wrap">
       <table>
         <thead>
-          <tr><th>Indicador</th><th>Atual</th><th>Meta 2029</th><th>Unidade</th><th>Obs.</th></tr>
+          <tr><th>Indicador</th><th>Atual</th><th>Ano conclusão</th><th>Meta de conclusão</th><th>Unidade</th><th>Obs.</th></tr>
         </thead>
         <tbody>
           {% for m in metas %}
-          <tr><td>{{ m.nome_indicador }}</td><td>{{ m.situacao_atual }}</td><td>{{ m.meta_2029 }}</td><td>{{ m.unidade }}</td><td>{{ m.observacoes }}</td></tr>
+          <tr><td>{{ m.nome_indicador }}</td><td>{{ m.situacao_atual }}</td><td>{{ m.ano_conclusao|default:'-' }}</td><td>{{ m.meta_conclusao }}</td><td>{{ m.unidade }}</td><td>{{ m.observacoes }}</td></tr>
           {% empty %}
-          <tr><td colspan="5">Nenhuma meta cadastrada para esta empresa.</td></tr>
+          <tr><td colspan="6">Nenhuma meta cadastrada para esta empresa.</td></tr>
           {% endfor %}
         </tbody>
       </table>

@@ -3,7 +3,7 @@
 <section class="card">
   <div class="row-between">
     <div>
-      <h2>Metas de Futuro (2029)</h2>
+      <h2>Metas de Futuro</h2>
       <p>Empresa: <strong>{{ empresa.nome }}</strong></p>
     </div>
     <div class="actions">
@@ -21,7 +21,8 @@
           <th>Indicador</th>
           <th>Unidade</th>
           <th>Situação atual</th>
-          <th>Meta 2029</th>
+          <th>Ano conclusão</th>
+          <th>Meta de conclusão</th>
           <th>Observações</th>
           <th></th>
         </tr>
@@ -32,7 +33,8 @@
           <td>{{ m.nome_indicador }}</td>
           <td>{{ m.unidade|default:'-' }}</td>
           <td>{{ m.situacao_atual|default:'-' }}</td>
-          <td>{{ m.meta_2029|default:'-' }}</td>
+          <td>{{ m.ano_conclusao|default:'-' }}</td>
+          <td>{{ m.meta_conclusao|default:'-' }}</td>
           <td>{{ m.observacoes|default:'-' }}</td>
           <td>
             <a href="{% url 'metas_2029_update' empresa.id m.id %}">Editar</a> |

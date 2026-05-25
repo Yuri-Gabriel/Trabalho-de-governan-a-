@@ -123,7 +123,7 @@ class RiscoAvaliacaoForm(forms.ModelForm):
 class MetaIndicadorForm(forms.ModelForm):
     class Meta:
         model = MetaIndicador
-        fields = ["nome_indicador", "unidade", "situacao_atual", "meta_2029", "observacoes"]
+        fields = ["nome_indicador", "unidade", "situacao_atual", "ano_conclusao", "meta_conclusao", "observacoes"]
         widgets = {
             "observacoes": forms.Textarea(attrs={"rows": 3}),
         }
@@ -132,7 +132,7 @@ class MetaIndicadorForm(forms.ModelForm):
 class ObjetivoEstrategicoPDTIForm(forms.ModelForm):
     class Meta:
         model = ObjetivoEstrategicoPDTI
-        fields = ["objetivo", "resultado_esperado_2029"]
+        fields = ["objetivo", "resultado_esperado", "ano"]
 
 
 class PDTIForm(forms.ModelForm):
@@ -150,13 +150,13 @@ class PDTIForm(forms.ModelForm):
             "conclusao",
         ]
         widgets = {
-            "introducao": forms.Textarea(attrs={"rows": 4}),
-            "objetivos_estrategicos_texto": forms.Textarea(attrs={"rows": 4}),
-            "analise_situacional": forms.Textarea(attrs={"rows": 4}),
-            "diagnostico_samti": forms.Textarea(attrs={"rows": 4}),
-            "analise_de_riscos": forms.Textarea(attrs={"rows": 4}),
-            "estrutura_governanca": forms.Textarea(attrs={"rows": 4}),
-            "roadmap_evolucao": forms.Textarea(attrs={"rows": 4}),
-            "visao_de_futuro": forms.Textarea(attrs={"rows": 4}),
-            "conclusao": forms.Textarea(attrs={"rows": 4}),
+            "introducao": forms.Textarea(attrs={"rows": 4, "style": "width: 100%;"}),
+            "objetivos_estrategicos_texto": forms.Textarea(attrs={"rows": 4, "style": "width: 100%;"}),
+            "analise_situacional": forms.Textarea(attrs={"rows": 4, "style": "width: 100%;"}),
+            "diagnostico_samti": forms.Textarea(attrs={"rows": 4, "style": "width: 100%;"}),
+            "analise_de_riscos": forms.Textarea(attrs={"rows": 4, "style": "width: 100%;"}),
+            "estrutura_governanca": forms.Textarea(attrs={"rows": 4, "style": "width: 100%;"}),
+            "roadmap_evolucao": forms.Textarea(attrs={"rows": 4, "style": "width: 100%;"}),
+            "visao_de_futuro": forms.Textarea(attrs={"rows": 4, "style": "width: 100%;"}),
+            "conclusao": forms.Textarea(attrs={"rows": 4, "style": "width: 100%;"}),
         }

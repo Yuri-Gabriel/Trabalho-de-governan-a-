@@ -45,7 +45,8 @@ class Migration(migrations.Migration):
                         ("nome_indicador", models.CharField(max_length=180)),
                         ("unidade", models.CharField(blank=True, max_length=30)),
                         ("situacao_atual", models.CharField(blank=True, max_length=120)),
-                        ("meta_2029", models.CharField(blank=True, max_length=120)),
+                        ("ano_conclusao", models.PositiveSmallIntegerField(blank=True, null=True)),
+                        ("meta_conclusao", models.CharField(blank=True, max_length=120, db_column="meta_2029")),
                         ("observacoes", models.TextField(blank=True)),
                         ("criado_em", models.DateTimeField(auto_now_add=True)),
                         ("atualizado_em", models.DateTimeField(auto_now=True)),
@@ -67,7 +68,8 @@ class Migration(migrations.Migration):
                     fields=[
                         ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
                         ("objetivo", models.CharField(max_length=255)),
-                        ("resultado_esperado_2029", models.CharField(max_length=255)),
+                        ("resultado_esperado", models.CharField(max_length=255, db_column="resultado_esperado_2029")),
+                        ("ano", models.PositiveSmallIntegerField(blank=True, null=True)),
                         (
                             "empresa",
                             models.ForeignKey(

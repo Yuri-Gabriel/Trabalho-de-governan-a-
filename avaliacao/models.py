@@ -232,7 +232,15 @@ class MetaIndicador(models.Model):
     nome_indicador = models.CharField(max_length=180)
     unidade = models.CharField(max_length=30, blank=True)
     situacao_atual = models.CharField(max_length=120, blank=True)
-    meta_2029 = models.CharField(max_length=120, blank=True)
+
+    # Antes era uma coluna fixa "meta_2029". Agora a UI trabalha com:
+    # - ano_conclusao
+    # - meta_conclusao
+    # Para manter compatibilidade com o schema legado, mapeamos meta_conclusao
+    # para a coluna existente `meta_2029`.
+    ano_conclusao = models.PositiveSmallIntegerField(null=True, blank=True)
+    meta_conclusao = models.CharField(max_length=120, blank=True, db_column="meta_2029")
+
     observacoes = models.TextField(blank=True)
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
@@ -247,7 +255,10 @@ class MetaIndicador(models.Model):
 class ObjetivoEstrategicoPDTI(models.Model):
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, related_name="objetivos_pdti")
     objetivo = models.CharField(max_length=255)
-    resultado_esperado_2029 = models.CharField(max_length=255)
+
+    # Antes era fixo "resultado_esperado_2029"; agora queremos 3 colunas na tabela (inclui Ano).
+    resultado_esperado = models.CharField(max_length=255, db_column="resultado_esperado_2029")
+    ano = models.PositiveSmallIntegerField(null=True, blank=True)
 
     class Meta:
         ordering = ["id"]

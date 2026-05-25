@@ -23,12 +23,12 @@
   <p>{{ pdti.objetivos_estrategicos_texto|linebreaksbr }}</p>
 
   <table>
-    <thead><tr><th>Objetivo Estratégico</th><th>Resultado esperado até 2029</th></tr></thead>
+    <thead><tr><th>Objetivo Estratégico</th><th>Resultado esperado</th><th>Ano</th></tr></thead>
     <tbody>
       {% for o in objetivos %}
-      <tr><td>{{ o.objetivo }}</td><td>{{ o.resultado_esperado_2029 }}</td></tr>
+      <tr><td>{{ o.objetivo }}</td><td>{{ o.resultado_esperado }}</td><td>{{ o.ano|default:'-' }}</td></tr>
       {% empty %}
-      <tr><td colspan="2">Nenhum objetivo cadastrado.</td></tr>
+      <tr><td colspan="3">Nenhum objetivo cadastrado.</td></tr>
       {% endfor %}
     </tbody>
   </table>
@@ -78,14 +78,14 @@
     </tbody>
   </table>
 
-  <h2>9. Indicadores Estratégicos (KPIs) e Metas 2029</h2>
+  <h2>9. Indicadores Estratégicos (KPIs) e Metas</h2>
   <table>
-    <thead><tr><th>Indicador</th><th>Atual</th><th>Meta 2029</th><th>Unidade</th><th>Obs.</th></tr></thead>
+    <thead><tr><th>Indicador</th><th>Atual</th><th>Ano conclusão</th><th>Meta de conclusão</th><th>Unidade</th><th>Obs.</th></tr></thead>
     <tbody>
       {% for m in metas %}
-      <tr><td>{{ m.nome_indicador }}</td><td>{{ m.situacao_atual }}</td><td>{{ m.meta_2029 }}</td><td>{{ m.unidade }}</td><td>{{ m.observacoes }}</td></tr>
+      <tr><td>{{ m.nome_indicador }}</td><td>{{ m.situacao_atual }}</td><td>{{ m.ano_conclusao|default:'-' }}</td><td>{{ m.meta_conclusao }}</td><td>{{ m.unidade }}</td><td>{{ m.observacoes }}</td></tr>
       {% empty %}
-      <tr><td colspan="5">Nenhuma meta cadastrada.</td></tr>
+      <tr><td colspan="6">Nenhuma meta cadastrada.</td></tr>
       {% endfor %}
     </tbody>
   </table>
