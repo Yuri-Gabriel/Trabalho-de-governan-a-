@@ -160,8 +160,17 @@ class PlanoAcao(models.Model):
     # Custos nominais (R$)
     custo_valor = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     custo_natureza = models.CharField(
-        max_length=10,
-        choices=[("CAPEX", "CAPEX"), ("OPEX", "OPEX")],
+        max_length=20,
+        # Suporta tanto natureza financeira (CAPEX/OPEX) quanto a categorização usada
+        # em alguns planos (Estratégico/Preventivo/Corretivo/Melhoria Contínua).
+        choices=[
+            ("CAPEX", "CAPEX"),
+            ("OPEX", "OPEX"),
+            ("ESTRATEGICO", "Estratégico"),
+            ("PREVENTIVO", "Preventivo"),
+            ("CORRETIVO", "Corretivo"),
+            ("MELHORIA_CONTINUA", "Melhoria Contínua"),
+        ],
         blank=True,
         default="",
     )
