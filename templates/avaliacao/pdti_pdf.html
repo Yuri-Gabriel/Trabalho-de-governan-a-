@@ -41,16 +41,6 @@
   <h2>2. Objetivos Estratégicos do PDTI</h2>
   <p>{{ pdti.objetivos_estrategicos_texto|linebreaksbr }}</p>
 
-  <table>
-    <thead><tr><th>Objetivo Estratégico</th><th>Resultado esperado</th><th>Ano</th></tr></thead>
-    <tbody>
-      {% for o in objetivos %}
-      <tr><td>{{ o.objetivo }}</td><td>{{ o.resultado_esperado }}</td><td>{{ o.ano|default:'-' }}</td></tr>
-      {% empty %}
-      <tr><td colspan="3">Nenhum objetivo cadastrado.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
 
   <h2>3. Análise Situacional</h2>
   <p>{{ pdti.analise_situacional|linebreaksbr }}</p>
