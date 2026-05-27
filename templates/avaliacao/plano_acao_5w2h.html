@@ -57,6 +57,7 @@
           <div>
             <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
               🟡 When — Prazo
+              {% if item.form.data_limite.field.required %}<span class="req">*</span>{% endif %}
             </label>
             {{ item.form.data_limite }}
             {% if item.plano.data_limite %}
@@ -67,6 +68,7 @@
           <div>
             <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
               🟡 Where — Onde
+              {% if item.form.where_local.field.required %}<span class="req">*</span>{% endif %}
             </label>
             {{ item.form.where_local }}
           </div>
@@ -74,6 +76,7 @@
           <div>
             <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
               🟡 Who — Responsável
+              {% if item.form.responsavel.field.required %}<span class="req">*</span>{% endif %}
             </label>
             {{ item.form.responsavel }}
           </div>
@@ -81,6 +84,7 @@
           <div>
             <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
               🟡 How Much — Custo/Esforço
+              {% if item.form.how_much.field.required %}<span class="req">*</span>{% endif %}
             </label>
             {{ item.form.how_much }}
           </div>
@@ -88,6 +92,7 @@
           <div style="grid-column: span 2;">
             <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
               🟡 How — Como será feito?
+              {% if item.form.how.field.required %}<span class="req">*</span>{% endif %}
             </label>
             {{ item.form.how }}
           </div>
@@ -95,8 +100,33 @@
           <div>
             <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
               📌 Status
+              {% if item.form.status.field.required %}<span class="req">*</span>{% endif %}
             </label>
             {{ item.form.status }}
+          </div>
+
+          <div>
+            <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
+              💰 Custo (R$)
+              {% if item.form.custo_valor.field.required %}<span class="req">*</span>{% endif %}
+            </label>
+            {{ item.form.custo_valor }}
+          </div>
+
+          <div>
+            <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
+              💰 Natureza
+              {% if item.form.custo_natureza.field.required %}<span class="req">*</span>{% endif %}
+            </label>
+            {{ item.form.custo_natureza }}
+          </div>
+
+          <div>
+            <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
+              💰 Recorrência
+              {% if item.form.custo_recorrencia.field.required %}<span class="req">*</span>{% endif %}
+            </label>
+            {{ item.form.custo_recorrencia }}
           </div>
 
         </div>
@@ -117,6 +147,7 @@
 {% endif %}
 
 <style>
+  .req { color: #dc2626; font-weight: 800; margin-left: .25rem; }
   input[type="text"], input[type="date"], select, textarea {
     width: 100%;
     padding: .4rem .6rem;

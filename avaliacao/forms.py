@@ -86,6 +86,12 @@ class PlanoAcaoForm(forms.ModelForm):
 class PlanoAcaoInlineForm(forms.ModelForm):
     """Form compacto para edição inline na página 5W2H."""
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Evita erro "campo obrigatório" em selects quando o browser não envia valor.
+        # (No model, custo_recorrencia tem default=UNICO.)
+        self.fields["custo_recorrencia"].initial = self.instance.custo_recorrencia or "UNICO"
+
     class Meta:
         model = PlanoAcao
         fields = [
@@ -107,8 +113,6 @@ class PlanoAcaoInlineForm(forms.ModelForm):
             "custo_valor": forms.NumberInput(attrs={"class": "input-compact", "step": "0.01"}),
             "custo_natureza": forms.Select(attrs={"class": "input-compact"}),
             "custo_recorrencia": forms.Select(attrs={"class": "input-compact"}),
-            # Garante que o campo de data seja enviado mesmo quando vazio (evita
-            # browsers omitirem o input date não preenchido em alguns cenários)
             "status": forms.Select(attrs={"class": "input-compact"}),
         }
 
