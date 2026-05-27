@@ -78,7 +78,7 @@ class PlanoAcaoForm(forms.ModelForm):
             "custo_recorrencia",
         ]
         widgets = {
-            "data_limite": forms.DateInput(attrs={"type": "date"}),
+            "data_limite": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
             "how": forms.Textarea(attrs={"rows": 2}),
         }
 
@@ -100,7 +100,7 @@ class PlanoAcaoInlineForm(forms.ModelForm):
             "custo_recorrencia",
         ]
         widgets = {
-            "data_limite": forms.DateInput(attrs={"type": "date", "class": "input-compact"}),
+            "data_limite": forms.DateInput(attrs={"type": "date", "class": "input-compact"}, format="%Y-%m-%d"),
             "how": forms.Textarea(attrs={"rows": 2, "class": "input-compact"}),
             "where_local": forms.TextInput(attrs={"class": "input-compact"}),
             "how_much": forms.TextInput(attrs={"class": "input-compact"}),
