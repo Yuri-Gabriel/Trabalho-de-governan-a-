@@ -9,21 +9,37 @@ from avaliacao.models import Avaliacao, Resposta, RespostaEscolha
 
 
 def _parse_when_to_date(when_text: str, base_date):
-    """Converte textos como:
-    - "Primeiros 30 dias" -> base_date + 30
-    - "Até 45 dias" -> base_date + 45
-    - "Até 60 dias" -> base_date + 60
-    - "Até 90 dias" -> base_date + 90
+    """Converte o campo textual "When" da planilha em uma data de calendário (data_limite).
 
-    Retorna date ou None quando não é possível converter (Mensalmente, Trimestralmente, 24x7, Contínuo, Imediato...).
+    Regras:
+    - "Primeiros 30 dias" / "Até 45 dias" / "Até 60 dias" / "Até 90 dias" -> base_date + N
+    - "Imediato" -> base_date
+    - "Mensalmente" -> base_date + 30
+    - "Trimestralmente" -> base_date + 90
+    - "Semestralmente" -> base_date + 180
+    - "Contínuo" -> base_date + 365 (marcador de 1 ano)
+    - "24x7" -> base_date
+
+    Observação: essas regras são aproximações para permitir uma data objetiva no sistema.
     """
     if not when_text:
         return None
 
     s = str(when_text).strip().lower()
 
-    # imediato = hoje
     if s == "imediato":
+        return base_date
+
+    # recorrências aproximadas
+    if s == "mensalmente":
+        return base_date + timedelta(days=30)
+    if s == "a cada trimestre" or s == "trimestralmente":
+        return base_date + timedelta(days=90)
+    if s == "semestralmente":
+        return base_date + timedelta(days=180)
+    if s == "contínuo" or s == "continuo":
+        return base_date + timedelta(days=365)
+    if s == "24x7" or s == "24/7":
         return base_date
 
     m = re.search(r"(\d+)\s*dias", s)
