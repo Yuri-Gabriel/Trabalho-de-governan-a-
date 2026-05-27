@@ -36,9 +36,9 @@ def _parse_when_to_date(when_text: str, base_date):
     if s == "a cada trimestre" or s == "trimestralmente":
         return base_date + timedelta(days=90)
     if s == "semestralmente":
-        return base_date + timedelta(days=180)
+        return base_date + timedelta(days=90)
     if s == "contínuo" or s == "continuo":
-        return base_date + timedelta(days=365)
+        return base_date + timedelta(days=90)
     if s == "24x7" or s == "24/7":
         return base_date
 
