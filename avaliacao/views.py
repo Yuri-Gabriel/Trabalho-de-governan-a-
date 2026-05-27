@@ -500,7 +500,16 @@ def plano_acao_item_salvar(request, avaliacao_id, plano_id):
         form.save()
         messages.success(request, "Item do plano de ação salvo.")
     else:
-        messages.warning(request, "Não foi possível salvar este item. Verifique os campos.")
+        # Mostra o primeiro erro (ajuda a entender por que "não salva")
+        erro_txt = None
+        for field, errs in form.errors.items():
+            if errs:
+                erro_txt = f"{field}: {errs.as_text()}"
+                break
+        if erro_txt:
+            messages.warning(request, f"Não foi possível salvar este item: {erro_txt}")
+        else:
+            messages.warning(request, "Não foi possível salvar este item. Verifique os campos.")
 
     return redirect("plano_acao_5w2h", avaliacao_id=avaliacao_id)
 
