@@ -3,13 +3,32 @@
 <head>
   <meta charset="utf-8" />
   <style>
+    /* Página padrão (vertical) */
+    @page { size: A4 portrait; margin: 1.5cm; }
+    @page landscape { size: A4 landscape; margin: 1.2cm; }
+
     body { font-family: sans-serif; font-size: 12px; }
     h1 { font-size: 18px; margin: 0 0 8px 0; }
     h2 { font-size: 14px; margin: 16px 0 8px 0; }
     .muted { color: #666; }
+
+    .page-break-before { page-break-before: always; }
+    .page-break-after { page-break-after: always; }
+
     table { width: 100%; border-collapse: collapse; margin-top: 6px; }
     th, td { border: 1px solid #ddd; padding: 6px; vertical-align: top; }
     th { background: #f3f3f3; }
+
+    /* Tabela grande (5W2H) — otimizações para não "vazar" */
+    .tabela-5w2h { table-layout: fixed; }
+    .tabela-5w2h th, .tabela-5w2h td {
+      font-size: 10px;
+      padding: 4px;
+      word-wrap: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .landscape-page { page: landscape; }
   </style>
 </head>
 <body>
@@ -48,36 +67,6 @@
   <h2>7. Plano Estratégico de Evolução</h2>
   <p>{{ pdti.roadmap_evolucao|linebreaksbr }}</p>
 
-  <h2>8. Plano de Ação Prioritário (5W2H)</h2>
-  <p class="muted">Gerado a partir das respostas "NÃO" da avaliação.</p>
-  <table>
-    <thead>
-      <tr>
-        <th>Área</th><th>O que</th><th>Por quê</th><th>Quando</th><th>Onde</th><th>Quem</th><th>Como</th><th>Custo/Esforço</th><th>Custo (R$)</th><th>Natureza</th><th>Recorrência</th><th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for r in respostas_nao %}
-      <tr>
-        <td>{{ r.questao.categoria.nome }}</td>
-        <td>{{ r.questao.texto }}</td>
-        <td>{{ r.providencia }}</td>
-        <td>{% if r.plano_acao.data_limite %}{{ r.plano_acao.data_limite|date:'Y-m-d' }}{% else %}-{% endif %}</td>
-        <td>{{ r.plano_acao.where_local|default:'-' }}</td>
-        <td>{% if r.plano_acao.responsavel %}{{ r.plano_acao.responsavel.username }}{% else %}-{% endif %}</td>
-        <td>{{ r.plano_acao.how|default:'-' }}</td>
-        <td>{{ r.plano_acao.how_much|default:'-' }}</td>
-        <td>{% if r.plano_acao.custo_valor %}{{ r.plano_acao.custo_valor }}{% else %}-{% endif %}</td>
-        <td>{{ r.plano_acao.custo_natureza|default:'-' }}</td>
-        <td>{{ r.plano_acao.get_custo_recorrencia_display }}</td>
-        <td>{{ r.plano_acao.get_status_display }}</td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="12">Nenhuma ação registrada.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
   <h2>9. Indicadores Estratégicos (KPIs) e Metas</h2>
   <table>
     <thead><tr><th>Indicador</th><th>Atual</th><th>Ano conclusão</th><th>Meta de conclusão</th><th>Unidade</th><th>Obs.</th></tr></thead>
@@ -95,5 +84,41 @@
 
   <h2>11. Conclusão</h2>
   <p>{{ pdti.conclusao|linebreaksbr }}</p>
+
+  <div class="page-break-after"></div>
+
+  <!-- Última seção em página separada e HORIZONTAL -->
+  <section class="landscape-page">
+    <h2>12. Plano de Ação Prioritário (5W2H)</h2>
+    <p class="muted">Gerado a partir das respostas "NÃO" da avaliação.</p>
+
+    <table class="tabela-5w2h">
+      <thead>
+        <tr>
+          <th>Área</th><th>O que</th><th>Por quê</th><th>Quando</th><th>Onde</th><th>Quem</th><th>Como</th><th>Custo/Esforço</th><th>Custo (R$)</th><th>Natureza</th><th>Recorrência</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in respostas_nao %}
+        <tr>
+          <td>{{ r.questao.categoria.nome }}</td>
+          <td>{{ r.questao.texto }}</td>
+          <td>{{ r.providencia }}</td>
+          <td>{% if r.plano_acao.data_limite %}{{ r.plano_acao.data_limite|date:'Y-m-d' }}{% else %}-{% endif %}</td>
+          <td>{{ r.plano_acao.where_local|default:'-' }}</td>
+          <td>{% if r.plano_acao.responsavel %}{{ r.plano_acao.responsavel.username }}{% else %}-{% endif %}</td>
+          <td>{{ r.plano_acao.how|default:'-' }}</td>
+          <td>{{ r.plano_acao.how_much|default:'-' }}</td>
+          <td>{% if r.plano_acao.custo_valor %}{{ r.plano_acao.custo_valor }}{% else %}-{% endif %}</td>
+          <td>{{ r.plano_acao.custo_natureza|default:'-' }}</td>
+          <td>{{ r.plano_acao.get_custo_recorrencia_display }}</td>
+          <td>{{ r.plano_acao.get_status_display }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="12">Nenhuma ação registrada.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
 </body>
 </html>
