@@ -18,9 +18,6 @@
     <p style="opacity:.6;">Responda as questões com "Não" e preencha o campo de providência para que os itens apareçam aqui.</p>
   </div>
 {% else %}
-<form method="post">
-  {% csrf_token %}
-
   {% regroup itens by resposta.questao.categoria.nome as itens_por_categoria %}
 
   {% for grupo in itens_por_categoria %}
@@ -30,83 +27,93 @@
     </h3>
 
     {% for item in grupo.list %}
-    <div class="plano-item" style="background:var(--surface-2,#f8fafc); border-radius:8px; padding:1.25rem; margin-bottom:1rem; border:1px solid var(--border,#e2e8f0);">
+    <form method="post" action="{% url 'plano_acao_item_salvar' avaliacao.id item.plano.id %}">
+      {% csrf_token %}
 
-      <!-- WHAT + WHY (read-only, vindos do questionário) -->
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
-        <div>
-          <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
-            🔵 What — O que fazer?
-          </label>
-          <p style="margin:.25rem 0 0; font-weight:600;">{{ item.resposta.questao.texto }}</p>
-          <span style="font-size:.75rem; opacity:.5;">
-            {{ item.resposta.questao.get_framework_origem_display }} · Ref: {{ item.resposta.questao.referencia|default:"—" }} · Peso: {{ item.resposta.questao.peso }}
-          </span>
+      <div class="plano-item" style="background:var(--surface-2,#f8fafc); border-radius:8px; padding:1.25rem; margin-bottom:1rem; border:1px solid var(--border,#e2e8f0);">
+
+        <!-- WHAT + WHY (read-only, vindos do questionário) -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+          <div>
+            <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
+              🔵 What — O que fazer?
+            </label>
+            <p style="margin:.25rem 0 0; font-weight:600;">{{ item.resposta.questao.texto }}</p>
+            <span style="font-size:.75rem; opacity:.5;">
+              {{ item.resposta.questao.get_framework_origem_display }} · Ref: {{ item.resposta.questao.referencia|default:"—" }} · Peso: {{ item.resposta.questao.peso }}
+            </span>
+          </div>
+          <div>
+            <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
+              🔵 Why — Por quê? (Providência)
+            </label>
+            <p style="margin:.25rem 0 0;">{{ item.resposta.providencia }}</p>
+          </div>
         </div>
-        <div>
-          <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
-            🔵 Why — Por quê? (Providência)
-          </label>
-          <p style="margin:.25rem 0 0;">{{ item.resposta.providencia }}</p>
+
+        <!-- CAMPOS EDITÁVEIS 5W2H -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem;">
+
+          <div>
+            <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
+              🟡 When — Prazo
+            </label>
+            {{ item.form.data_limite }}
+            {% if item.plano.data_limite %}
+              <div style="font-size:.75rem; opacity:.7; margin-top:.25rem;">Atual: {{ item.plano.data_limite|date:"d/m/Y" }}</div>
+            {% endif %}
+          </div>
+
+          <div>
+            <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
+              🟡 Where — Onde
+            </label>
+            {{ item.form.where_local }}
+          </div>
+
+          <div>
+            <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
+              🟡 Who — Responsável
+            </label>
+            {{ item.form.responsavel }}
+          </div>
+
+          <div>
+            <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
+              🟡 How Much — Custo/Esforço
+            </label>
+            {{ item.form.how_much }}
+          </div>
+
+          <div style="grid-column: span 2;">
+            <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
+              🟡 How — Como será feito?
+            </label>
+            {{ item.form.how }}
+          </div>
+
+          <div>
+            <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
+              📌 Status
+            </label>
+            {{ item.form.status }}
+          </div>
+
         </div>
+
+        <div style="display:flex; justify-content:flex-end; margin-top:1rem;">
+          <button type="submit" class="btn btn-primary">💾 Salvar este item</button>
+        </div>
+
       </div>
-
-      <!-- CAMPOS EDITÁVEIS 5W2H -->
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem;">
-
-        <div>
-          <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
-            🟡 When — Prazo
-          </label>
-          {{ item.form.data_limite }}
-        </div>
-
-        <div>
-          <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
-            🟡 Where — Onde
-          </label>
-          {{ item.form.where_local }}
-        </div>
-
-        <div>
-          <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
-            🟡 Who — Responsável
-          </label>
-          {{ item.form.responsavel }}
-        </div>
-
-        <div>
-          <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
-            🟡 How Much — Custo/Esforço
-          </label>
-          {{ item.form.how_much }}
-        </div>
-
-        <div style="grid-column: span 2;">
-          <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
-            🟡 How — Como será feito?
-          </label>
-          {{ item.form.how }}
-        </div>
-
-        <div>
-          <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; opacity:.6;">
-            📌 Status
-          </label>
-          {{ item.form.status }}
-        </div>
-
-      </div>
-    </div>
+    </form>
     {% endfor %}
   </section>
   {% endfor %}
 
   <div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:1rem;">
-    <a href="{% url 'relatorio' avaliacao.id %}" class="btn btn-secondary">Cancelar</a>
-    <button type="submit" class="btn btn-primary">💾 Salvar Plano de Ação</button>
+    <a href="{% url 'relatorio' avaliacao.id %}" class="btn btn-secondary">Voltar</a>
   </div>
-</form>
 {% endif %}
 
 <style>

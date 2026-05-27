@@ -480,6 +480,32 @@ def plano_acao_5w2h(request, avaliacao_id):
 
 
 # ─────────────────────────────────────────────
+# PLANO DE AÇÃO 5W2H — salvar item individual
+# ─────────────────────────────────────────────
+
+@role_required(UserRole.ADMIN, UserRole.CONSULTOR)
+@require_POST
+def plano_acao_item_salvar(request, avaliacao_id, plano_id):
+    avaliacao = get_object_or_404(Avaliacao, id=avaliacao_id)
+
+    if not _usuario_gerencia_avaliacao(request.user, avaliacao):
+        messages.error(request, "Você não tem permissão para gerenciar o plano de ação.")
+        return redirect("dashboard")
+
+    plano = get_object_or_404(PlanoAcao, id=plano_id, resposta__avaliacao=avaliacao)
+    prefix = f"plano_{plano.pk}"
+    form = PlanoAcaoInlineForm(request.POST, instance=plano, prefix=prefix)
+
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Item do plano de ação salvo.")
+    else:
+        messages.warning(request, "Não foi possível salvar este item. Verifique os campos.")
+
+    return redirect("plano_acao_5w2h", avaliacao_id=avaliacao_id)
+
+
+# ─────────────────────────────────────────────
 # EXPORTAÇÃO 5W2H → .xlsx
 # ─────────────────────────────────────────────
 

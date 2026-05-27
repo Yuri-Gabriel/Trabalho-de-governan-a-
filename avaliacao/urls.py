@@ -31,6 +31,11 @@ urlpatterns = [
     path("avaliacoes/<int:avaliacao_id>/auditoria/", views.auditoria, name="auditoria"),
     path("avaliacoes/<int:avaliacao_id>/concluir/", views.concluir_avaliacao, name="concluir_avaliacao"),
     path("avaliacoes/<int:avaliacao_id>/plano-acao/", views.plano_acao_5w2h, name="plano_acao_5w2h"),
+    path(
+        "avaliacoes/<int:avaliacao_id>/plano-acao/<int:plano_id>/salvar/",
+        views.plano_acao_item_salvar,
+        name="plano_acao_item_salvar",
+    ),
     path("avaliacoes/<int:avaliacao_id>/plano-acao/exportar/", views.exportar_plano_xlsx, name="exportar_plano_xlsx"),
     path("avaliacoes/<int:avaliacao_id>/relatorio/pdf/", views.exportar_relatorio_pdf, name="exportar_relatorio_pdf"),
 

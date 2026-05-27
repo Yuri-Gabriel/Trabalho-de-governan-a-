@@ -107,6 +107,9 @@ class PlanoAcaoInlineForm(forms.ModelForm):
             "custo_valor": forms.NumberInput(attrs={"class": "input-compact", "step": "0.01"}),
             "custo_natureza": forms.Select(attrs={"class": "input-compact"}),
             "custo_recorrencia": forms.Select(attrs={"class": "input-compact"}),
+            # Garante que o campo de data seja enviado mesmo quando vazio (evita
+            # browsers omitirem o input date não preenchido em alguns cenários)
+            "status": forms.Select(attrs={"class": "input-compact"}),
         }
 
 
